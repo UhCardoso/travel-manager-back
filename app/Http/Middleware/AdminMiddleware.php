@@ -2,12 +2,23 @@
 
 namespace App\Http\Middleware;
 
+use App\Repositories\Contracts\UserRepositoryInterface;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
 {
+    protected UserRepositoryInterface $userRepository;
+
+    /**
+     * Constructor
+     */
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -24,7 +35,7 @@ class AdminMiddleware
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        if (! $user->isAdmin()) {
+        if (! $this->userRepository->isAdmin($user)) {
             return response()->json([
                 'message' => 'Acesso negado. Apenas administradores podem acessar este recurso.',
                 'error' => 'INSUFFICIENT_PERMISSIONS',
