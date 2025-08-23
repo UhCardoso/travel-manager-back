@@ -24,11 +24,11 @@ class AuthUserService
     /**
      * Create a new user
      */
-    public function create(array $data): AuthResource
+    public function store(array $data): AuthResource
     {
         $data['role'] = UserRole::USER->value;
 
-        $user = $this->userRepository->create($data);
+        $user = $this->userRepository->store($data);
 
         $token = $user->createToken('user-access')->plainTextToken;
 
@@ -67,10 +67,14 @@ class AuthUserService
     public function logout($user): array
     {
         if ($user instanceof User) {
-            $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+            if (method_exists($user, 'currentAccessToken') && $user->currentAccessToken()) {
+                $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+            }
         } else {
             $userModel = $this->userRepository->findById($user->id);
-            $userModel->tokens()->where('id', $userModel->currentAccessToken()->id)->delete();
+            if ($userModel && method_exists($userModel, 'currentAccessToken') && $userModel->currentAccessToken()) {
+                $userModel->tokens()->where('id', $userModel->currentAccessToken()->id)->delete();
+            }
         }
 
         return [

@@ -24,5 +24,5 @@ interface UserRepositoryInterface
     /**
      * Create a new user
      */
-    public function create(array $data): User;
+    public function store(array $data): User;
 }

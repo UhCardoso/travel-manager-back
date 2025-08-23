@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UserLoginRequest;
 use App\Http\Resources\SuccessResource;
 use App\Services\AuthUserService;
@@ -37,7 +37,7 @@ class AuthUserController extends Controller
      *         required=true,
      *         description="Dados do usuário",
      *
-     *         @OA\JsonContent(ref="#/components/schemas/CreateUserRequest")
+     *         @OA\JsonContent(ref="#/components/schemas/StoreUserRequest")
      *     ),
      *
      *     @OA\Response(
@@ -64,9 +64,9 @@ class AuthUserController extends Controller
      *     )
      * )
      */
-    public function create(CreateUserRequest $request): JsonResponse
+    public function store(StoreUserRequest $request): JsonResponse
     {
-        $result = $this->authUserService->create($request->validated());
+        $result = $this->authUserService->store($request->validated());
 
         return (new SuccessResource([
             'message' => 'Usuário criado com sucesso',
