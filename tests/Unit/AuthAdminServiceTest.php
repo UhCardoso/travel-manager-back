@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Resources\AuthResource;
 use App\Models\User;
 use App\Repositories\Eloquent\EloquentUserRepository;
 use App\Services\AuthAdminService;
@@ -183,12 +184,16 @@ test('auth service login with valid admin credentials', function () {
 
     $result = $this->authAdminService->login('admin@test.com', 'password123');
 
-    expect($result)->toHaveKeys(['user', 'token', 'token_type'])
-        ->and($result['user']->id)->toBe($admin->id)
-        ->and($result['user']->email)->toBe('admin@test.com')
-        ->and($result['user']->role)->toBe(UserRole::ADMIN->value)
-        ->and($result['token_type'])->toBe('Bearer')
-        ->and($result['token'])->toBeString();
+    expect($result)->toBeInstanceOf(AuthResource::class);
+
+    $resultData = $result->resolve();
+
+    expect($resultData)->toHaveKeys(['user', 'token', 'token_type'])
+        ->and($resultData['user']['id'])->toBe($admin->id)
+        ->and($resultData['user']['email'])->toBe('admin@test.com')
+        ->and($resultData['user']['role'])->toBe(UserRole::ADMIN->value)
+        ->and($resultData['token_type'])->toBe('Bearer')
+        ->and($resultData['token'])->toBeString();
 });
 
 test('auth service throws exception for non-admin user', function () {
