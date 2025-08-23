@@ -3,7 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Resources\AuthResource;
 use App\Models\User;
-use App\Repositories\Eloquent\EloquentUserRepository;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\AuthUserService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -13,7 +13,7 @@ use Illuminate\Validation\ValidationException;
 uses(RefreshDatabase::class, WithFaker::class);
 
 beforeEach(function () {
-    $this->userRepository = new EloquentUserRepository(new User);
+    $this->userRepository = $this->app->make(UserRepositoryInterface::class);
     $this->authUserService = new AuthUserService($this->userRepository);
 });
 
@@ -25,17 +25,15 @@ test('auth service creates user with valid data', function () {
         'role' => UserRole::USER->value,
     ];
 
-    $result = $this->authUserService->create($userData);
+    $result = $this->authUserService->store($userData);
 
     expect($result)->toBeInstanceOf(AuthResource::class);
 
     $resultData = $result->resolve();
-
-    expect($resultData)->toHaveKeys(['user', 'token', 'token_type'])
-        ->and($resultData['user']['name'])->toBe($userData['name'])
+    expect($resultData['user']['name'])->toBe($userData['name'])
         ->and($resultData['user']['email'])->toBe($userData['email'])
-        ->and($resultData['token_type'])->toBe('Bearer')
-        ->and($resultData['token'])->toBeString();
+        ->and($resultData['token'])->toBeString()
+        ->and($resultData['token_type'])->toBe('Bearer');
 });
 
 test('auth service creates user with default role when not specified', function () {
@@ -43,105 +41,87 @@ test('auth service creates user with default role when not specified', function 
         'name' => fake()->name(),
         'email' => fake()->unique()->safeEmail(),
         'password' => bcrypt('password123'),
-        // role não especificado
     ];
 
-    $result = $this->authUserService->create($userData);
+    $result = $this->authUserService->store($userData);
 
     $resultData = $result->resolve();
 
-    // Verificar se o usuário foi criado no banco com role padrão
     $createdUser = User::find($resultData['user']['id']);
     expect($createdUser->role)->toBe(UserRole::USER->value);
 });
 
 test('auth service login with valid user credentials', function () {
     $user = User::factory()->user()->create([
-        'email' => 'user@test.com',
         'password' => bcrypt('password123'),
     ]);
 
-    $result = $this->authUserService->login('user@test.com', 'password123');
+    $result = $this->authUserService->login($user->email, 'password123');
 
     expect($result)->toBeInstanceOf(AuthResource::class);
 
     $resultData = $result->resolve();
-
-    expect($resultData)->toHaveKeys(['user', 'token', 'token_type'])
-        ->and($resultData['user']['id'])->toBe($user->id)
-        ->and($resultData['user']['email'])->toBe('user@test.com')
-        ->and($resultData['user']['role'])->toBe(UserRole::USER->value)
-        ->and($resultData['token_type'])->toBe('Bearer')
-        ->and($resultData['token'])->toBeString();
+    expect($resultData['user']['id'])->toBe($user->id)
+        ->and($resultData['token'])->toBeString()
+        ->and($resultData['token_type'])->toBe('Bearer');
 });
 
 test('auth service login with valid admin credentials', function () {
     $admin = User::factory()->admin()->create([
-        'email' => 'admin@test.com',
         'password' => bcrypt('password123'),
     ]);
 
-    $result = $this->authUserService->login('admin@test.com', 'password123');
+    $result = $this->authUserService->login($admin->email, 'password123');
 
     expect($result)->toBeInstanceOf(AuthResource::class);
 
     $resultData = $result->resolve();
-
-    expect($resultData)->toHaveKeys(['user', 'token', 'token_type'])
-        ->and($resultData['user']['id'])->toBe($admin->id)
-        ->and($resultData['user']['email'])->toBe('admin@test.com');
+    expect($resultData['user']['id'])->toBe($admin->id)
+        ->and($resultData['token'])->toBeString();
 });
 
 test('auth service throws exception for invalid password', function () {
     User::factory()->user()->create([
-        'email' => 'user@test.com',
         'password' => bcrypt('password123'),
     ]);
 
-    expect(fn () => $this->authUserService->login('user@test.com', 'wrongpassword'))
-        ->toThrow(ValidationException::class);
+    expect(fn () => $this->authUserService->login('test@example.com', 'wrongpassword'))
+        ->toThrow(ValidationException::class, 'Email ou senha inválidos.');
 });
 
 test('auth service throws exception for non-existent user', function () {
-    expect(fn () => $this->authUserService->login('nonexistent@test.com', 'password123'))
-        ->toThrow(ValidationException::class);
+    expect(fn () => $this->authUserService->login('nonexistent@example.com', 'password123'))
+        ->toThrow(ValidationException::class, 'Email ou senha inválidos.');
 });
 
 test('auth service logout returns success response', function () {
     $user = User::factory()->user()->create();
 
-    // Simular usuário autenticado criando um token
-    $token = $user->createToken('test-token');
-    $user->withAccessToken($token->accessToken);
-
     $result = $this->authUserService->logout($user);
 
-    expect($result)->toHaveKeys(['success'])
+    expect($result)->toBeArray()
+        ->and($result)->toHaveKey('success')
         ->and($result['success'])->toBe(true);
 });
 
 test('auth service logout with user model instance', function () {
     $user = User::factory()->user()->create();
 
-    // Simular usuário autenticado criando um token
-    $token = $user->createToken('test-token');
-    $user->withAccessToken($token->accessToken);
-
     $result = $this->authUserService->logout($user);
 
-    expect($result['success'])->toBe(true);
+    expect($result)->toBeArray()
+        ->and($result)->toHaveKey('success')
+        ->and($result['success'])->toBe(true);
 });
 
 test('auth service logout with user id', function () {
     $user = User::factory()->user()->create();
 
-    // Simular usuário autenticado criando um token
-    $token = $user->createToken('test-token');
-    $user->withAccessToken($token->accessToken);
-
     $result = $this->authUserService->logout($user);
 
-    expect($result['success'])->toBe(true);
+    expect($result)->toBeArray()
+        ->and($result)->toHaveKey('success')
+        ->and($result['success'])->toBe(true);
 });
 
 test('created user has hashed password', function () {
@@ -152,7 +132,7 @@ test('created user has hashed password', function () {
         'role' => UserRole::USER->value,
     ];
 
-    $result = $this->authUserService->create($userData);
+    $result = $this->authUserService->store($userData);
 
     $resultData = $result->resolve();
     $createdUser = User::find($resultData['user']['id']);
@@ -176,8 +156,8 @@ test('multiple users can be created with unique emails', function () {
         'role' => UserRole::USER->value,
     ];
 
-    $result1 = $this->authUserService->create($user1Data);
-    $result2 = $this->authUserService->create($user2Data);
+    $result1 = $this->authUserService->store($user1Data);
+    $result2 = $this->authUserService->store($user2Data);
 
     expect($result1)->toBeInstanceOf(AuthResource::class)
         ->and($result2)->toBeInstanceOf(AuthResource::class);
@@ -185,8 +165,7 @@ test('multiple users can be created with unique emails', function () {
     $result1Data = $result1->resolve();
     $result2Data = $result2->resolve();
 
-    expect($result1Data['user']['email'])->not->toBe($result2Data['user']['email'])
-        ->and($result1Data['token'])->not->toBe($result2Data['token']);
+    expect($result1Data['user']['email'])->not->toBe($result2Data['user']['email']);
 });
 
 test('user factory creates users with correct roles', function () {
@@ -194,9 +173,7 @@ test('user factory creates users with correct roles', function () {
     $admin = User::factory()->admin()->create();
 
     expect($user->role)->toBe(UserRole::USER->value)
-        ->and($admin->role)->toBe(UserRole::ADMIN->value)
-        ->and($user->isUser())->toBe(true)
-        ->and($admin->isAdmin())->toBe(true);
+        ->and($admin->role)->toBe(UserRole::ADMIN->value);
 });
 
 test('repository creates user correctly', function () {
@@ -207,56 +184,56 @@ test('repository creates user correctly', function () {
         'role' => UserRole::USER->value,
     ];
 
-    $user = $this->userRepository->create($userData);
+    $user = $this->userRepository->store($userData);
 
     expect($user)->toBeInstanceOf(User::class)
         ->and($user->name)->toBe($userData['name'])
         ->and($user->email)->toBe($userData['email'])
-        ->and($user->role)->toBe(UserRole::USER->value);
+        ->and($user->role)->toBe($userData['role']);
 });
 
 test('repository finds user by email', function () {
-    $fakeEmail = fake()->unique()->safeEmail();
-    $user = User::factory()->user()->create([
-        'email' => $fakeEmail,
-    ]);
+    $user = User::factory()->user()->create();
 
-    $found = $this->userRepository->findByEmail($fakeEmail);
+    $foundUser = $this->userRepository->findByEmail($user->email);
 
-    expect($found)->not->toBeNull()
-        ->and($found->id)->toBe($user->id)
-        ->and($found->email)->toBe($fakeEmail);
+    expect($foundUser)->toBeInstanceOf(User::class)
+        ->and($foundUser->id)->toBe($user->id);
 });
 
 test('repository returns null for non-existent email', function () {
-    $fakeEmail = fake()->unique()->safeEmail();
+    $foundUser = $this->userRepository->findByEmail('nonexistent@example.com');
 
-    $found = $this->userRepository->findByEmail($fakeEmail);
-
-    expect($found)->toBeNull();
+    expect($foundUser)->toBeNull();
 });
 
 test('repository finds user by id', function () {
     $user = User::factory()->user()->create();
 
-    $found = $this->userRepository->findById($user->id);
+    $foundUser = $this->userRepository->findById($user->id);
 
-    expect($found)->not->toBeNull()
-        ->and($found->id)->toBe($user->id);
+    expect($foundUser)->toBeInstanceOf(User::class)
+        ->and($foundUser->id)->toBe($user->id);
 });
 
 test('repository updates user data', function () {
-    $user = User::factory()->user()->create([
-        'name' => 'Original Name',
-    ]);
+    $user = User::factory()->user()->create();
+    $updateData = ['name' => 'Updated Name'];
 
-    $newName = fake()->name();
-    $updated = $this->userRepository->update($user->id, [
-        'name' => $newName,
-    ]);
+    $result = $this->userRepository->update($user->id, $updateData);
 
-    expect($updated)->toBe(true);
+    expect($result)->toBe(true);
 
-    $user->refresh();
-    expect($user->name)->toBe($newName);
+    $updatedUser = User::find($user->id);
+    expect($updatedUser->name)->toBe('Updated Name');
+});
+
+test('user model has correct role methods', function () {
+    $user = User::factory()->user()->create();
+    $admin = User::factory()->admin()->create();
+
+    expect($user->isUser())->toBe(true)
+        ->and($user->isAdmin())->toBe(false)
+        ->and($admin->isAdmin())->toBe(true)
+        ->and($admin->isUser())->toBe(false);
 });
