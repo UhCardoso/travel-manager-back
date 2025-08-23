@@ -7,23 +7,26 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @OA\Schema(
- *     schema="Auth",
- *     title="Auth",
- *     description="Modelo de autenticação",
+ *     schema="AuthResourceData",
+ *     title="Auth Resource Data",
+ *     description="Dados de autenticação retornados após login",
  *
  *     @OA\Property(
  *         property="user",
- *         ref="#/components/schemas/User"
+ *         ref="#/components/schemas/UserResourceData",
+ *         description="Dados do usuário autenticado"
  *     ),
  *     @OA\Property(
  *         property="token",
  *         type="string",
- *         example="1|a1b2c3d4e5f6g7h8i9j0"
+ *         example="1|a1b2c3d4e5f6g7h8i9j0",
+ *         description="Token de acesso para autenticação"
  *     ),
  *     @OA\Property(
  *         property="token_type",
  *         type="string",
- *         example="Bearer"
+ *         example="Bearer",
+ *         description="Tipo do token de autenticação"
  *     )
  * )
  */

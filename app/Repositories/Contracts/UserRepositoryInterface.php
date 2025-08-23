@@ -25,14 +25,4 @@ interface UserRepositoryInterface
      * Create a new user
      */
     public function create(array $data): User;
-
-    /**
-     * Check if user is admin
-     */
-    public function isAdmin(User $user): bool;
-
-    /**
-     * Check if user is user
-     */
-    public function isUser(User $user): bool;
 }

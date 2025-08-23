@@ -2,7 +2,6 @@
 
 namespace App\Repositories\Eloquent;
 
-use App\Enums\UserRole;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 
@@ -45,21 +44,5 @@ class EloquentUserRepository implements UserRepositoryInterface
     public function create(array $data): User
     {
         return $this->model->create($data);
-    }
-
-    /**
-     * Check if user is admin
-     */
-    public function isAdmin(User $user): bool
-    {
-        return $user->role === UserRole::ADMIN->value;
-    }
-
-    /**
-     * Check if user is user
-     */
-    public function isUser(User $user): bool
-    {
-        return $user->role === UserRole::USER->value;
     }
 }

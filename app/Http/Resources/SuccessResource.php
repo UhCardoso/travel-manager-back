@@ -7,13 +7,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @OA\Schema(
- *     schema="SuccessResponse",
- *     title="Success Response",
- *     description="Modelo de resposta de sucesso",
+ *     schema="SuccessResourceData",
+ *     title="Success Resource Data",
+ *     description="Estrutura padrão de resposta de sucesso da API",
  *
- *     @OA\Property(property="success", type="boolean", example=true),
- *     @OA\Property(property="message", type="string", example="Operação realizada com sucesso"),
- *     @OA\Property(property="data", type="object", nullable=true)
+ *     @OA\Property(property="success", type="boolean", example=true, description="Indica se a operação foi bem-sucedida"),
+ *     @OA\Property(property="message", type="string", example="Operação realizada com sucesso", description="Mensagem descritiva da operação"),
+ *     @OA\Property(property="data", type="object", nullable=true, description="Dados retornados pela operação")
  * )
  */
 class SuccessResource extends JsonResource

@@ -35,12 +35,7 @@ class AuthAdminController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *
-     *         @OA\JsonContent(
-     *             required={"email","password"},
-     *
-     *             @OA\Property(property="email", type="string", format="email", example="admin@admin.com", description="Email do administrador"),
-     *             @OA\Property(property="password", type="string", format="password", example="admin123", description="Senha do administrador", minLength=6)
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/AdminLoginRequest")
      *     ),
      *
      *     @OA\Response(
@@ -50,13 +45,13 @@ class AuthAdminController extends Controller
      *         @OA\JsonContent(
      *             allOf={
      *
-     *                 @OA\Schema(ref="#/components/schemas/SuccessResponse"),
+     *                 @OA\Schema(ref="#/components/schemas/SuccessResourceData"),
      *                 @OA\Schema(
      *
-     *                     @OA\Property(property="data", type="object",
-     *                         @OA\Property(property="user", ref="#/components/schemas/User"),
-     *                         @OA\Property(property="token", type="string", example="1|abcdef123456..."),
-     *                         @OA\Property(property="token_type", type="string", example="Bearer")
+     *                     @OA\Property(property="message", example="Login realizado com sucesso"),
+     *                     @OA\Property(
+     *                         property="data",
+     *                         ref="#/components/schemas/AuthResourceData"
      *                     )
      *                 )
      *             }
@@ -67,7 +62,20 @@ class AuthAdminController extends Controller
      *         response=422,
      *         description="Erro de validação",
      *
-     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
+     *         @OA\JsonContent(
+     *             allOf={
+     *
+     *                 @OA\Schema(ref="#/components/schemas/ValidationErrorResponse"),
+     *                 @OA\Schema(
+     *
+     *                     @OA\Property(property="message", example="Os dados fornecidos são inválidos."),
+     *                     @OA\Property(
+     *                         property="errors",
+     *                         ref="#/components/schemas/AdminLoginRequestErrors"
+     *                     )
+     *                 )
+     *             }
+     *         )
      *     )
      * )
      */
@@ -97,7 +105,16 @@ class AuthAdminController extends Controller
      *         response=200,
      *         description="Logout realizado com sucesso",
      *
-     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
+     *         @OA\JsonContent(
+     *             allOf={
+     *
+     *                 @OA\Schema(ref="#/components/schemas/SuccessResourceData"),
+     *                 @OA\Schema(
+     *
+     *                     @OA\Property(property="message", example="Sessão encerrada com sucesso.")
+     *                 )
+     *             }
+     *         )
      *     ),
      *
      *     @OA\Response(
@@ -117,6 +134,8 @@ class AuthAdminController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
+        $this->authAdminService->logout($request->user());
+
         $result = $this->authAdminService->logout($request->user());
 
         return response()->json($result, Response::HTTP_OK);

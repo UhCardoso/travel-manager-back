@@ -7,28 +7,28 @@ use OpenApi\Annotations as OA;
 
 /**
  * @OA\Schema(
- *     schema="AdminLoginRequest",
+ *     schema="UserLoginRequest",
  *     required={"email", "password"},
  *
  *     @OA\Property(
  *         property="email",
  *         type="string",
  *         format="email",
- *         description="Email do administrador"
+ *         description="Email do usuário"
  *     ),
  *     @OA\Property(
  *         property="password",
  *         type="string",
  *         format="password",
  *         minLength=6,
- *         description="Senha do administrador"
+ *         description="Senha do usuário"
  *     )
  * )
  *
  * @OA\Schema(
- *     schema="AdminLoginRequestErrors",
- *     title="Admin Login Request Error Messages",
- *     description="Mensagens de erro para o login de administrador",
+ *     schema="UserLoginRequestErrors",
+ *     title="User Login Request Error Messages",
+ *     description="Mensagens de erro para o login de usuário",
  *
  *     @OA\Property(property="email.required", type="string", example="O email é obrigatório."),
  *     @OA\Property(property="email.email", type="string", example="O email deve ser um endereço válido."),
@@ -37,7 +37,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="password.min", type="string", example="A senha deve ter pelo menos 6 caracteres.")
  * )
  */
-class AdminLoginRequest extends FormRequest
+class UserLoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

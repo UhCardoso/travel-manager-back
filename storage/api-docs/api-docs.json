@@ -33,26 +33,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "description": "Email do administrador",
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "admin@admin.com"
-                                    },
-                                    "password": {
-                                        "description": "Senha do administrador",
-                                        "type": "string",
-                                        "format": "password",
-                                        "minLength": 6,
-                                        "example": "admin123"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/AdminLoginRequest"
                             }
                         }
                     }
@@ -65,25 +46,15 @@
                                 "schema": {
                                     "allOf": [
                                         {
-                                            "$ref": "#/components/schemas/SuccessResponse"
+                                            "$ref": "#/components/schemas/SuccessResourceData"
                                         },
                                         {
                                             "properties": {
+                                                "message": {
+                                                    "example": "Login realizado com sucesso"
+                                                },
                                                 "data": {
-                                                    "properties": {
-                                                        "user": {
-                                                            "$ref": "#/components/schemas/User"
-                                                        },
-                                                        "token": {
-                                                            "type": "string",
-                                                            "example": "1|abcdef123456..."
-                                                        },
-                                                        "token_type": {
-                                                            "type": "string",
-                                                            "example": "Bearer"
-                                                        }
-                                                    },
-                                                    "type": "object"
+                                                    "$ref": "#/components/schemas/AuthResourceData"
                                                 }
                                             },
                                             "type": "object"
@@ -98,7 +69,22 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ValidationErrorResponse"
+                                        },
+                                        {
+                                            "properties": {
+                                                "message": {
+                                                    "example": "Os dados fornecidos são inválidos."
+                                                },
+                                                "errors": {
+                                                    "$ref": "#/components/schemas/AdminLoginRequestErrors"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -120,7 +106,19 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/SuccessResourceData"
+                                        },
+                                        {
+                                            "properties": {
+                                                "message": {
+                                                    "example": "Sessão encerrada com sucesso."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -141,6 +139,186 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/UnauthorizedResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/user/register": {
+            "post": {
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "Registra um novo usuário",
+                "description": "Cria um novo usuário no sistema",
+                "operationId": "registerUser",
+                "requestBody": {
+                    "description": "Dados do usuário",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUserRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuário criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Usuário criado com sucesso"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/login": {
+            "post": {
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "Login de usuário",
+                "description": "Autentica um usuário e retorna um token de acesso",
+                "operationId": "userLogin",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login realizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login realizado com sucesso"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciais inválidas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthenticatedResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/logout": {
+            "post": {
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "Logout de usuário",
+                "description": "Realiza o logout do usuário autenticado",
+                "operationId": "userLogout",
+                "responses": {
+                    "200": {
+                        "description": "Logout realizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logout realizado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthenticatedResponse"
                                 }
                             }
                         }
@@ -241,6 +419,269 @@
                 },
                 "type": "object"
             },
+            "AdminLoginRequest": {
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "description": "Email do administrador",
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "description": "Senha do administrador",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 6
+                    }
+                },
+                "type": "object"
+            },
+            "AdminLoginRequestErrors": {
+                "title": "Admin Login Request Error Messages",
+                "description": "Mensagens de erro para o login de administrador",
+                "properties": {
+                    "email.required": {
+                        "type": "string",
+                        "example": "O email é obrigatório."
+                    },
+                    "email.email": {
+                        "type": "string",
+                        "example": "O email deve ser um endereço válido."
+                    },
+                    "password.required": {
+                        "type": "string",
+                        "example": "A senha é obrigatória."
+                    },
+                    "password.string": {
+                        "type": "string",
+                        "example": "A senha deve ser uma string."
+                    },
+                    "password.min": {
+                        "type": "string",
+                        "example": "A senha deve ter pelo menos 6 caracteres."
+                    }
+                },
+                "type": "object"
+            },
+            "CreateUserRequest": {
+                "required": [
+                    "name",
+                    "email",
+                    "password",
+                    "password_confirmation"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "Nome do usuário",
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "description": "Email do usuário",
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "password": {
+                        "description": "Senha do usuário",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8
+                    },
+                    "password_confirmation": {
+                        "description": "Confirmação da senha",
+                        "type": "string",
+                        "format": "password"
+                    }
+                },
+                "type": "object"
+            },
+            "CreateUserRequestErrors": {
+                "title": "Create User Request Error Messages",
+                "description": "Mensagens de erro para a criação de usuário",
+                "properties": {
+                    "name.required": {
+                        "type": "string",
+                        "example": "O nome é obrigatório."
+                    },
+                    "name.string": {
+                        "type": "string",
+                        "example": "O nome deve ser uma string."
+                    },
+                    "name.max": {
+                        "type": "string",
+                        "example": "O nome não pode ter mais de 255 caracteres."
+                    },
+                    "email.required": {
+                        "type": "string",
+                        "example": "O email é obrigatório."
+                    },
+                    "email.string": {
+                        "type": "string",
+                        "example": "O email deve ser uma string."
+                    },
+                    "email.email": {
+                        "type": "string",
+                        "example": "O email deve ser um endereço válido."
+                    },
+                    "email.max": {
+                        "type": "string",
+                        "example": "O email não pode ter mais de 255 caracteres."
+                    },
+                    "email.unique": {
+                        "type": "string",
+                        "example": "Este email já está em uso."
+                    },
+                    "password.required": {
+                        "type": "string",
+                        "example": "A senha é obrigatória."
+                    },
+                    "password.string": {
+                        "type": "string",
+                        "example": "A senha deve ser uma string."
+                    },
+                    "password.min": {
+                        "type": "string",
+                        "example": "A senha deve ter pelo menos 8 caracteres."
+                    },
+                    "password.confirmed": {
+                        "type": "string",
+                        "example": "A confirmação da senha não confere."
+                    }
+                },
+                "type": "object"
+            },
+            "UserLoginRequest": {
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "description": "Email do usuário",
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "description": "Senha do usuário",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 6
+                    }
+                },
+                "type": "object"
+            },
+            "UserLoginRequestErrors": {
+                "title": "User Login Request Error Messages",
+                "description": "Mensagens de erro para o login de usuário",
+                "properties": {
+                    "email.required": {
+                        "type": "string",
+                        "example": "O email é obrigatório."
+                    },
+                    "email.email": {
+                        "type": "string",
+                        "example": "O email deve ser um endereço válido."
+                    },
+                    "password.required": {
+                        "type": "string",
+                        "example": "A senha é obrigatória."
+                    },
+                    "password.string": {
+                        "type": "string",
+                        "example": "A senha deve ser uma string."
+                    },
+                    "password.min": {
+                        "type": "string",
+                        "example": "A senha deve ter pelo menos 6 caracteres."
+                    }
+                },
+                "type": "object"
+            },
+            "AuthResourceData": {
+                "title": "Auth Resource Data",
+                "description": "Dados de autenticação retornados após login",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/UserResourceData"
+                    },
+                    "token": {
+                        "description": "Token de acesso para autenticação",
+                        "type": "string",
+                        "example": "1|a1b2c3d4e5f6g7h8i9j0"
+                    },
+                    "token_type": {
+                        "description": "Tipo do token de autenticação",
+                        "type": "string",
+                        "example": "Bearer"
+                    }
+                },
+                "type": "object"
+            },
+            "SuccessResourceData": {
+                "title": "Success Resource Data",
+                "description": "Estrutura padrão de resposta de sucesso da API",
+                "properties": {
+                    "success": {
+                        "description": "Indica se a operação foi bem-sucedida",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "description": "Mensagem descritiva da operação",
+                        "type": "string",
+                        "example": "Operação realizada com sucesso"
+                    },
+                    "data": {
+                        "description": "Dados retornados pela operação",
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "UserResourceData": {
+                "title": "User Resource Data",
+                "description": "Dados do usuário retornados pela API",
+                "properties": {
+                    "id": {
+                        "description": "ID único do usuário",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "description": "Nome completo do usuário",
+                        "type": "string",
+                        "example": "João Silva"
+                    },
+                    "email": {
+                        "description": "Email do usuário",
+                        "type": "string",
+                        "format": "email",
+                        "example": "joao@email.com"
+                    },
+                    "email_verified_at": {
+                        "description": "Data de verificação do email",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Data de criação do registro",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Data da última atualização",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "title": "User Model",
                 "description": "Modelo de usuário do sistema",
@@ -268,7 +709,7 @@
                             "admin",
                             "user"
                         ],
-                        "example": "admin"
+                        "example": "user"
                     },
                     "email_verified_at": {
                         "description": "Data de verificação do email",
@@ -329,7 +770,7 @@
                                         "admin",
                                         "user"
                                     ],
-                                    "example": "admin"
+                                    "example": "user"
                                 }
                             },
                             "type": "object"
@@ -369,7 +810,7 @@
                                         "admin",
                                         "user"
                                     ],
-                                    "example": "admin"
+                                    "example": "user"
                                 }
                             },
                             "type": "object"
@@ -405,6 +846,10 @@
         {
             "name": "Admin Authentication",
             "description": "Endpoints para autenticação de administradores"
+        },
+        {
+            "name": "User Authentication",
+            "description": "Endpoints para autenticação de usuários"
         }
     ],
     "security": [

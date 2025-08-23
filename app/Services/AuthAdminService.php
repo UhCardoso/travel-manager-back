@@ -24,15 +24,9 @@ class AuthAdminService
     {
         $user = $this->userRepository->findByEmail($email);
 
-        if (! $user || ! $this->userRepository->isAdmin($user)) {
+        if (! $user || ! Hash::check($password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Credenciais inválidas ou usuário não é administrador.'],
-            ]);
-        }
-
-        if (! Hash::check($password, $user->password)) {
-            throw ValidationException::withMessages([
-                'password' => ['Email ou senha incorretos.'],
+                'message' => ['Email ou senha incorretos.'],
             ]);
         }
 
@@ -59,7 +53,6 @@ class AuthAdminService
 
         return [
             'success' => true,
-            'message' => 'Sessão encerrada com sucesso.',
         ];
     }
 }

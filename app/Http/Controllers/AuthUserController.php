@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\UserLoginRequest;
 use App\Http\Resources\SuccessResource;
 use App\Services\AuthUserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -35,36 +37,7 @@ class AuthUserController extends Controller
      *         required=true,
      *         description="Dados do usuário",
      *
-     *         @OA\JsonContent(
-     *             required={"name", "email", "password", "password_confirmation"},
-     *
-     *             @OA\Property(
-     *                 property="name",
-     *                 type="string",
-     *                 maxLength=255,
-     *                 description="Nome do usuário"
-     *             ),
-     *             @OA\Property(
-     *                 property="email",
-     *                 type="string",
-     *                 format="email",
-     *                 maxLength=255,
-     *                 description="Email do usuário"
-     *             ),
-     *             @OA\Property(
-     *                 property="password",
-     *                 type="string",
-     *                 format="password",
-     *                 minLength=8,
-     *                 description="Senha do usuário"
-     *             ),
-     *             @OA\Property(
-     *                 property="password_confirmation",
-     *                 type="string",
-     *                 format="password",
-     *                 description="Confirmação da senha"
-     *             )
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/CreateUserRequest")
      *     ),
      *
      *     @OA\Response(
@@ -73,19 +46,12 @@ class AuthUserController extends Controller
      *
      *         @OA\JsonContent(
      *
-     *             @OA\Property(
-     *                 property="success",
-     *                 type="boolean",
-     *                 example=true
-     *             ),
-     *             @OA\Property(
-     *                 property="message",
-     *                 type="string",
-     *                 example="Usuário criado com sucesso"
-     *             ),
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Usuário criado com sucesso"),
      *             @OA\Property(
      *                 property="data",
-     *                 type="object"
+     *                 type="object",
+     *                 @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...")
      *             )
      *         )
      *     ),
@@ -94,18 +60,7 @@ class AuthUserController extends Controller
      *         response=422,
      *         description="Erro de validação",
      *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(
-     *                 property="message",
-     *                 type="string",
-     *                 example="Os dados fornecidos são inválidos."
-     *             ),
-     *             @OA\Property(
-     *                 property="errors",
-     *                 type="object"
-     *             )
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
      *     )
      * )
      */
@@ -117,5 +72,98 @@ class AuthUserController extends Controller
             'message' => 'Usuário criado com sucesso',
             'data' => $result,
         ]))->response()->setStatusCode(Response::HTTP_CREATED);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/user/login",
+     *     operationId="userLogin",
+     *     tags={"User Authentication"},
+     *     summary="Login de usuário",
+     *     description="Autentica um usuário e retorna um token de acesso",
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/UserLoginRequest")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login realizado com sucesso",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Login realizado com sucesso"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro de validação",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Credenciais inválidas",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/UnauthenticatedResponse")
+     *     )
+     * )
+     */
+    public function login(UserLoginRequest $request): JsonResponse
+    {
+        $result = $this->authUserService->login($request->email, $request->password);
+
+        return (new SuccessResource([
+            'message' => 'Login realizado com sucesso',
+            'data' => $result,
+        ]))->response()->setStatusCode(Response::HTTP_OK);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/user/logout",
+     *     operationId="userLogout",
+     *     tags={"User Authentication"},
+     *     summary="Logout de usuário",
+     *     description="Realiza o logout do usuário autenticado",
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logout realizado com sucesso",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Logout realizado com sucesso")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/UnauthenticatedResponse")
+     *     )
+     * )
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        $this->authUserService->logout($request->user());
+
+        return (new SuccessResource([
+            'success' => true,
+            'message' => 'Logout realizado com sucesso',
+        ]))->response()->setStatusCode(Response::HTTP_OK);
     }
 }
