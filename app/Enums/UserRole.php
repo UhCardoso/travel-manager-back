@@ -2,6 +2,16 @@
 
 namespace App\Enums;
 
+/**
+ * @OA\Schema(
+ *     schema="UserRole",
+ *     title="User Role Enum",
+ *     description="Enumeração dos papéis de usuário no sistema",
+ *     type="string",
+ *     enum={"admin","user"},
+ *     example="admin"
+ * )
+ */
 enum UserRole: string
 {
     case ADMIN = 'admin';
