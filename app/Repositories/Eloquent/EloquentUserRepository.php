@@ -40,6 +40,14 @@ class EloquentUserRepository implements UserRepositoryInterface
     }
 
     /**
+     * Create a new user
+     */
+    public function create(array $data): User
+    {
+        return $this->model->create($data);
+    }
+
+    /**
      * Check if user is admin
      */
     public function isAdmin(User $user): bool

@@ -22,6 +22,11 @@ interface UserRepositoryInterface
     public function update(int $id, array $data): bool;
 
     /**
+     * Create a new user
+     */
+    public function create(array $data): User;
+
+    /**
      * Check if user is admin
      */
     public function isAdmin(User $user): bool;
