@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Resources\AuthResource;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
@@ -19,7 +20,7 @@ class AuthAdminService
     /**
      * Login admin user
      */
-    public function login(string $email, string $password): array
+    public function login(string $email, string $password): AuthResource
     {
         $user = $this->userRepository->findByEmail($email);
 
@@ -37,11 +38,11 @@ class AuthAdminService
 
         $token = $user->createToken('admin-access')->plainTextToken;
 
-        return [
+        return new AuthResource([
             'user' => $user,
             'token' => $token,
             'token_type' => 'Bearer',
-        ];
+        ]);
     }
 
     /**
