@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdminLoginRequest;
+use App\Http\Resources\SuccessResource;
 use App\Services\AuthAdminService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -69,23 +71,17 @@ class AuthAdminController extends Controller
      *     )
      * )
      */
-    public function login(Request $request): JsonResponse
+    public function login(AdminLoginRequest $request): JsonResponse
     {
-        $validator = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
-
         $result = $this->authAdminService->login(
-            $validator['email'],
-            $validator['password']
+            $request->email,
+            $request->password
         );
 
-        return response()->json([
-            'success' => true,
+        return (new SuccessResource([
             'message' => 'Login realizado com sucesso',
             'data' => $result,
-        ], Response::HTTP_OK);
+        ]))->response()->setStatusCode(Response::HTTP_OK);
     }
 
     /**
