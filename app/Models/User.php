@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -91,5 +92,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the travel requests for the user.
+     */
+    public function travelRequests(): HasMany
+    {
+        return $this->hasMany(TravelRequest::class);
     }
 }
