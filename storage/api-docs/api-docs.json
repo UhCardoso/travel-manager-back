@@ -1,0 +1,415 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Corporate Travel Manager API",
+        "description": "API para gerenciamento de viagens corporativas",
+        "contact": {
+            "name": "Suporte Técnico",
+            "email": "admin@corporate-travel.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost",
+            "description": "Servidor da API"
+        }
+    ],
+    "paths": {
+        "/api/admin/login": {
+            "post": {
+                "tags": [
+                    "Admin Authentication"
+                ],
+                "summary": "Login de administrador",
+                "description": "Autentica um usuário administrador e retorna um token de acesso",
+                "operationId": "adminLogin",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "Email do administrador",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@admin.com"
+                                    },
+                                    "password": {
+                                        "description": "Senha do administrador",
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 6,
+                                        "example": "admin123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login realizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/SuccessResponse"
+                                        },
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "properties": {
+                                                        "user": {
+                                                            "$ref": "#/components/schemas/User"
+                                                        },
+                                                        "token": {
+                                                            "type": "string",
+                                                            "example": "1|abcdef123456..."
+                                                        },
+                                                        "token_type": {
+                                                            "type": "string",
+                                                            "example": "Bearer"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/logout": {
+            "post": {
+                "tags": [
+                    "Admin Authentication"
+                ],
+                "summary": "Logout de administrador",
+                "description": "Encerra a sessão do administrador e invalida o token de acesso",
+                "operationId": "adminLogout",
+                "responses": {
+                    "200": {
+                        "description": "Logout realizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Não autorizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthorizedResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "UserRole": {
+                "title": "User Role Enum",
+                "description": "Enumeração dos papéis de usuário no sistema",
+                "type": "string",
+                "enum": [
+                    "admin",
+                    "user"
+                ],
+                "example": "admin"
+            },
+            "SuccessResponse": {
+                "title": "Success Response",
+                "description": "Resposta padrão de sucesso",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Operação realizada com sucesso"
+                    },
+                    "data": {
+                        "description": "Dados da resposta",
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "title": "Error Response",
+                "description": "Resposta padrão de erro",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Erro na operação"
+                    },
+                    "errors": {
+                        "description": "Detalhes dos erros",
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationErrorResponse": {
+                "title": "Validation Error Response",
+                "description": "Resposta de erro de validação",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "The given data was invalid."
+                    },
+                    "errors": {
+                        "description": "Erros de validação por campo",
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "UnauthenticatedResponse": {
+                "title": "Unauthenticated Response",
+                "description": "Resposta para usuário não autenticado",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Unauthenticated."
+                    }
+                },
+                "type": "object"
+            },
+            "UnauthorizedResponse": {
+                "title": "Unauthorized Response",
+                "description": "Resposta para usuário não autorizado",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Access denied. Admin role required."
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "title": "User Model",
+                "description": "Modelo de usuário do sistema",
+                "properties": {
+                    "id": {
+                        "description": "ID único do usuário",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "description": "Nome completo do usuário",
+                        "type": "string",
+                        "example": "João Silva"
+                    },
+                    "email": {
+                        "description": "Email único do usuário",
+                        "type": "string",
+                        "format": "email",
+                        "example": "joao@example.com"
+                    },
+                    "role": {
+                        "description": "Papel do usuário no sistema",
+                        "type": "string",
+                        "enum": [
+                            "admin",
+                            "user"
+                        ],
+                        "example": "admin"
+                    },
+                    "email_verified_at": {
+                        "description": "Data de verificação do email",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Data de criação do registro",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Data da última atualização",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "requestBodies": {
+            "UserCreate": {
+                "description": "Dados para criação de usuário",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "name",
+                                "email",
+                                "password",
+                                "role"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "description": "Nome completo do usuário",
+                                    "type": "string",
+                                    "example": "João Silva"
+                                },
+                                "email": {
+                                    "description": "Email único do usuário",
+                                    "type": "string",
+                                    "format": "email",
+                                    "example": "joao@example.com"
+                                },
+                                "password": {
+                                    "description": "Senha do usuário",
+                                    "type": "string",
+                                    "format": "password",
+                                    "minLength": 6,
+                                    "example": "senha123"
+                                },
+                                "role": {
+                                    "description": "Papel do usuário no sistema",
+                                    "type": "string",
+                                    "enum": [
+                                        "admin",
+                                        "user"
+                                    ],
+                                    "example": "admin"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "UserUpdate": {
+                "description": "Dados para atualização de usuário",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "name": {
+                                    "description": "Nome completo do usuário",
+                                    "type": "string",
+                                    "example": "João Silva"
+                                },
+                                "email": {
+                                    "description": "Email único do usuário",
+                                    "type": "string",
+                                    "format": "email",
+                                    "example": "joao@example.com"
+                                },
+                                "password": {
+                                    "description": "Nova senha do usuário",
+                                    "type": "string",
+                                    "format": "password",
+                                    "minLength": 6,
+                                    "example": "novaSenha123"
+                                },
+                                "role": {
+                                    "description": "Papel do usuário no sistema",
+                                    "type": "string",
+                                    "enum": [
+                                        "admin",
+                                        "user"
+                                    ],
+                                    "example": "admin"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Enter token in format (Bearer <token>)",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            },
+            "passport": {
+                "type": "oauth2",
+                "description": "Laravel passport oauth2 security.",
+                "in": "header",
+                "scheme": "https",
+                "flows": {
+                    "password": {
+                        "authorizationUrl": "http://localhost/oauth/authorize",
+                        "tokenUrl": "http://localhost/oauth/token",
+                        "refreshUrl": "http://localhost/token/refresh",
+                        "scopes": []
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Admin Authentication",
+            "description": "Endpoints para autenticação de administradores"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ]
+}
