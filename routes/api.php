@@ -6,10 +6,12 @@ use App\Http\Controllers\AuthUserController;
 use App\Http\Controllers\UserTravelRequestController;
 use Illuminate\Support\Facades\Route;
 
+// User routes
 Route::prefix('user')->group(function () {
     Route::post('/register', [AuthUserController::class, 'store']);
     Route::post('/login', [AuthUserController::class, 'login']);
 
+    // User routes with authentication and role:user
     Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
         Route::post('/logout', [AuthUserController::class, 'logout']);
 
@@ -24,13 +26,15 @@ Route::prefix('user')->group(function () {
 
 });
 
-// Admin authentication routes
+// Admin routes
 Route::prefix('admin')->group(function () {
     Route::post('/login', [AuthAdminController::class, 'login']);
 
+    // Admin routes with authentication and role:admin
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('/logout', [AuthAdminController::class, 'logout']);
 
+        // Travel requests routes
         Route::middleware(['auth:sanctum'])->prefix('travel-request')->group(function () {
             Route::get('/all', [AdminTravelRequestController::class, 'index']);
             Route::get('/{travelRequestId}/details', [AdminTravelRequestController::class, 'show']);
