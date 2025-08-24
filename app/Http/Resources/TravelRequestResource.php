@@ -14,6 +14,7 @@ use OpenApi\Annotations as OA;
  *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="user_id", type="integer", example=1),
+ *     @OA\Property(property="user", type="object", nullable=true, description="Informações do usuário (quando disponível)"),
  *     @OA\Property(property="name", type="string", example="Viagem para Barcelona"),
  *     @OA\Property(property="country", type="string", example="Espanha"),
  *     @OA\Property(property="town", type="string", example="Barcelona", nullable=true),
@@ -38,6 +39,13 @@ class TravelRequestResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
+            'user' => $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                ];
+            }),
             'name' => $this->name,
             'country' => $this->country,
             'town' => $this->town,
