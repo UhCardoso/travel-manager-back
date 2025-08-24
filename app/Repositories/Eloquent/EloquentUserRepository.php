@@ -9,6 +9,9 @@ class EloquentUserRepository implements UserRepositoryInterface
 {
     protected User $model;
 
+    /**
+     * Constructor to inject the model
+     */
     public function __construct(User $model)
     {
         $this->model = $model;

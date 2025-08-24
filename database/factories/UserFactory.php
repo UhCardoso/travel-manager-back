@@ -3,14 +3,20 @@
 namespace Database\Factories;
 
 use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class UserFactory extends Factory
 {
-    protected $model = \App\Models\User::class;
+    protected $model = User::class;
 
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         return [
@@ -23,6 +29,11 @@ class UserFactory extends Factory
         ];
     }
 
+    /**
+     * Define the model's state for an admin user.
+     *
+     * @return array<string, mixed>
+     */
     public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -30,6 +41,11 @@ class UserFactory extends Factory
         ]);
     }
 
+    /**
+     * Define the model's state for a user.
+     *
+     * @return array<string, mixed>
+     */
     public function user(): static
     {
         return $this->state(fn (array $attributes) => [

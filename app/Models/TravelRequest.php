@@ -41,6 +41,13 @@ class TravelRequest extends Model
     ];
 
     /**
+     * The model's default values for attributes.
+     */
+    protected $attributes = [
+        'status' => TravelRequestStatus::PENDING,
+    ];
+
+    /**
      * The attributes that should be mutated to dates.
      */
     protected $dates = [

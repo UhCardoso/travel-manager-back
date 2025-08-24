@@ -29,7 +29,7 @@ class AuthUserController extends Controller
      * @OA\Post(
      *     path="/api/user/register",
      *     operationId="registerUser",
-     *     tags={"User Authentication"},
+     *     tags={"User Profile"},
      *     summary="Registra um novo usuário",
      *     description="Cria um novo usuário no sistema",
      *

@@ -154,7 +154,7 @@
         "/api/user/register": {
             "post": {
                 "tags": [
-                    "User Authentication"
+                    "User Profile"
                 ],
                 "summary": "Registra um novo usuário",
                 "description": "Cria um novo usuário no sistema",
@@ -165,7 +165,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CreateUserRequest"
+                                "$ref": "#/components/schemas/StoreUserRequest"
                             }
                         }
                     }
@@ -330,6 +330,172 @@
                     }
                 ]
             }
+        },
+        "/api/travel-request": {
+            "post": {
+                "tags": [
+                    "Travel Requests"
+                ],
+                "summary": "Criar nova solicitação de viagem",
+                "description": "Cria uma nova solicitação de viagem para o usuário autenticado",
+                "operationId": "756f9b6b790c4b49459d4ebc04b5ac3f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "country",
+                                    "departure_date",
+                                    "return_date"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Viagem para Barcelona"
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Espanha"
+                                    },
+                                    "departure_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-08-01"
+                                    },
+                                    "return_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-08-07"
+                                    },
+                                    "town": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Barcelona",
+                                        "nullable": true
+                                    },
+                                    "state": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Catalunha",
+                                        "nullable": true
+                                    },
+                                    "region": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Nordeste",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Solicitação de viagem criada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Solicitação de viagem criada com sucesso"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erros de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/travel-request/{travelRequestId}": {
+            "get": {
+                "tags": [
+                    "Travel Requests"
+                ],
+                "summary": "Obter detalhes de uma solicitação de viagem",
+                "description": "Retorna os detalhes de uma solicitação de viagem específica",
+                "operationId": "8b7651f52cff8e07b1a9e7aa7fefcc97",
+                "parameters": [
+                    {
+                        "name": "travelRequestId",
+                        "in": "path",
+                        "description": "ID da solicitação de viagem",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes da solicitação de viagem",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Solicitação de viagem encontrada com sucesso"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Solicitação de viagem não encontrada"
+                    },
+                    "401": {
+                        "description": "Não autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -466,7 +632,131 @@
                 },
                 "type": "object"
             },
-            "CreateUserRequest": {
+            "StoreTravelRequest": {
+                "required": [
+                    "name",
+                    "country",
+                    "departure_date",
+                    "return_date"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "Nome da viagem",
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "country": {
+                        "description": "País de destino",
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "town": {
+                        "description": "Cidade de destino",
+                        "type": "string",
+                        "maxLength": 255,
+                        "nullable": true
+                    },
+                    "state": {
+                        "description": "Estado de destino",
+                        "type": "string",
+                        "maxLength": 255,
+                        "nullable": true
+                    },
+                    "region": {
+                        "description": "Região de destino",
+                        "type": "string",
+                        "maxLength": 255,
+                        "nullable": true
+                    },
+                    "departure_date": {
+                        "description": "Data de partida",
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "return_date": {
+                        "description": "Data de retorno",
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreTravelRequestErrors": {
+                "title": "Store Travel Request Error Messages",
+                "description": "Mensagens de erro para a criação de solicitação de viagem",
+                "properties": {
+                    "name.required": {
+                        "type": "string",
+                        "example": "O nome é obrigatório."
+                    },
+                    "name.string": {
+                        "type": "string",
+                        "example": "O nome deve ser uma string."
+                    },
+                    "name.max": {
+                        "type": "string",
+                        "example": "O nome não pode ter mais de 255 caracteres."
+                    },
+                    "country.required": {
+                        "type": "string",
+                        "example": "O país é obrigatório."
+                    },
+                    "country.string": {
+                        "type": "string",
+                        "example": "O país deve ser uma string."
+                    },
+                    "country.max": {
+                        "type": "string",
+                        "example": "O país não pode ter mais de 255 caracteres."
+                    },
+                    "town.string": {
+                        "type": "string",
+                        "example": "A cidade deve ser uma string."
+                    },
+                    "town.max": {
+                        "type": "string",
+                        "example": "A cidade não pode ter mais de 255 caracteres."
+                    },
+                    "state.string": {
+                        "type": "string",
+                        "example": "O estado deve ser uma string."
+                    },
+                    "state.max": {
+                        "type": "string",
+                        "example": "O estado não pode ter mais de 255 caracteres."
+                    },
+                    "region.string": {
+                        "type": "string",
+                        "example": "A região deve ser uma string."
+                    },
+                    "region.max": {
+                        "type": "string",
+                        "example": "A região não pode ter mais de 255 caracteres."
+                    },
+                    "departure_date.required": {
+                        "type": "string",
+                        "example": "A data de partida é obrigatória."
+                    },
+                    "departure_date.date": {
+                        "type": "string",
+                        "example": "A data de partida deve ser uma data válida."
+                    },
+                    "return_date.required": {
+                        "type": "string",
+                        "example": "A data de retorno é obrigatória."
+                    },
+                    "return_date.date": {
+                        "type": "string",
+                        "example": "A data de retorno deve ser uma data válida."
+                    },
+                    "return_date.after": {
+                        "type": "string",
+                        "example": "A data de retorno deve ser posterior à data de partida."
+                    }
+                },
+                "type": "object"
+            },
+            "StoreUserRequest": {
                 "required": [
                     "name",
                     "email",
@@ -499,8 +789,8 @@
                 },
                 "type": "object"
             },
-            "CreateUserRequestErrors": {
-                "title": "Create User Request Error Messages",
+            "StoreUserRequestErrors": {
+                "title": "Store User Request Error Messages",
                 "description": "Mensagens de erro para a criação de usuário",
                 "properties": {
                     "name.required": {
@@ -639,6 +929,66 @@
                         "description": "Dados retornados pela operação",
                         "type": "object",
                         "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "TravelRequestResource": {
+                "title": "Travel Request Resource",
+                "description": "Recurso de solicitação de viagem",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Viagem para Barcelona"
+                    },
+                    "country": {
+                        "type": "string",
+                        "example": "Espanha"
+                    },
+                    "town": {
+                        "type": "string",
+                        "example": "Barcelona",
+                        "nullable": true
+                    },
+                    "state": {
+                        "type": "string",
+                        "example": "Catalunha",
+                        "nullable": true
+                    },
+                    "region": {
+                        "type": "string",
+                        "example": "Nordeste",
+                        "nullable": true
+                    },
+                    "departure_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-08-01"
+                    },
+                    "return_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-08-07"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "pending"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "datetime"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "datetime"
                     }
                 },
                 "type": "object"
@@ -850,6 +1200,14 @@
         {
             "name": "User Authentication",
             "description": "Endpoints para autenticação de usuários"
+        },
+        {
+            "name": "Travel Requests",
+            "description": "API Endpoints para gerenciamento de solicitações de viagem"
+        },
+        {
+            "name": "User Profile",
+            "description": "User Profile"
         }
     ],
     "security": [
