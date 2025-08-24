@@ -1,29 +1,44 @@
 <?php
 
-use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\AdminTravelRequestController;
+use App\Http\Controllers\AuthAdminController;
+use App\Http\Controllers\AuthUserController;
+use App\Http\Controllers\UserTravelRequestController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
-Route::get('/login', function (): JsonResponse {
-    return response()->json([
-        'message' => 'login teste',
-    ]);
-});
+// User routes
+Route::prefix('user')->group(function () {
+    Route::post('/register', [AuthUserController::class, 'store']);
+    Route::post('/login', [AuthUserController::class, 'login']);
 
-// Routes only for logged in users and admins
-Route::middleware(['user', 'admin'])->prefix('user')->group(function () {
-    Route::get('/profile', function (): JsonResponse {
-        return response()->json([
-            'message' => 'Perfil do usuário',
-        ]);
+    // User routes with authentication and role:user
+    Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
+        Route::post('/logout', [AuthUserController::class, 'logout']);
+
+        // Travel requests routes
+        Route::middleware(['auth:sanctum'])->prefix('travel-request')->group(function () {
+            Route::post('/create', [UserTravelRequestController::class, 'store']);
+            Route::get('/all', [UserTravelRequestController::class, 'index']);
+            Route::get('/{travelRequestId}/details', [UserTravelRequestController::class, 'show']);
+            Route::patch('/{travelRequestId}/cancel', [UserTravelRequestController::class, 'update']);
+        });
     });
+
 });
 
-// Routes only for admins
-Route::middleware('admin')->prefix('admin')->group(function () {
-    Route::get('/dashboard', function (): JsonResponse {
-        return response()->json([
-            'message' => 'perfil do administrador',
-        ]);
+// Admin routes
+Route::prefix('admin')->group(function () {
+    Route::post('/login', [AuthAdminController::class, 'login']);
+
+    // Admin routes with authentication and role:admin
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('/logout', [AuthAdminController::class, 'logout']);
+
+        // Travel requests routes
+        Route::middleware(['auth:sanctum'])->prefix('travel-request')->group(function () {
+            Route::get('/all', [AdminTravelRequestController::class, 'index']);
+            Route::get('/{travelRequestId}/details', [AdminTravelRequestController::class, 'show']);
+            Route::patch('/{travelRequestId}/update', [AdminTravelRequestController::class, 'update']);
+        });
     });
 });
