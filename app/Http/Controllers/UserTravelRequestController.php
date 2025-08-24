@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * @OA\Tag(
- *     name="Travel Requests",
+ *     name="User Travel Requests",
  *     description="API Endpoints para gerenciamento de solicitações de viagem"
  * )
  */
@@ -31,7 +31,7 @@ class UserTravelRequestController extends Controller
      *
      * @OA\Post(
      *     path="/api/user/travel-request",
-     *     tags={"Travel Requests"},
+     *     tags={"User Travel Requests"},
      *     summary="Criar nova solicitação de viagem",
      *     description="Cria uma nova solicitação de viagem para o usuário autenticado",
      *     security={{"bearerAuth": {}}},
@@ -97,7 +97,7 @@ class UserTravelRequestController extends Controller
      *
      * @OA\Get(
      *     path="/api/user/travel-request",
-     *     tags={"Travel Requests"},
+     *     tags={"User Travel Requests"},
      *     summary="Listar solicitações de viagem",
      *     description="Lista todas as solicitações de viagem do usuário autenticado. Todos os parâmetros de filtro são opcionais.",
      *     security={{"bearerAuth": {}}},
@@ -189,7 +189,7 @@ class UserTravelRequestController extends Controller
     /**
      * @OA\Get(
      *     path="/api/user/travel-request/{travelRequestId}",
-     *     tags={"Travel Requests"},
+     *     tags={"User Travel Requests"},
      *     summary="Obter detalhes de uma solicitação de viagem",
      *     description="Retorna os detalhes de uma solicitação de viagem específica",
      *     security={{"bearerAuth": {}}},
@@ -239,7 +239,7 @@ class UserTravelRequestController extends Controller
      *
      * @OA\Patch(
      *     path="/api/user/travel-request/{travelRequestId}",
-     *     tags={"Travel Requests"},
+     *     tags={"User Travel Requests"},
      *     summary="Cancelar uma solicitação de viagem",
      *     description="Cancela uma solicitação de viagem específica do usuário (não pode cancelar se aprovada)",
      *     security={{"bearerAuth": {}}},
