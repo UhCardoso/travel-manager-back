@@ -311,10 +311,8 @@ class UserTravelRequestController extends Controller
      *     )
      * )
      */
-    public function update(CancelTravelRequest $request, int $travelRequestId): JsonResponse
+    public function update(int $travelRequestId): JsonResponse
     {
-
-        $request->validated();
         $travelRequest = $this->userTravelRequestService->cancel(Auth::id(), $travelRequestId);
 
         return (new SuccessResource([

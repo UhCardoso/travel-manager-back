@@ -283,9 +283,7 @@ test('user can cancel their own pending travel request', function () {
         'status' => TravelRequestStatus::PENDING->value,
     ]);
 
-    $response = $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", [
-        'status' => TravelRequestStatus::CANCELLED->value,
-    ]);
+    $response = $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", []);
 
     $response->assertStatus(200)
         ->assertJson([
@@ -310,9 +308,7 @@ test('user cannot cancel approved travel request', function () {
         'status' => TravelRequestStatus::APPROVED->value,
     ]);
 
-    $response = $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", [
-        'status' => TravelRequestStatus::CANCELLED->value,
-    ]);
+    $response = $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", []);
 
     $response->assertStatus(500);
 });
@@ -326,35 +322,15 @@ test('user cannot cancel another user travel request', function () {
         'status' => TravelRequestStatus::PENDING->value,
     ]);
 
-    $response = $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", [
-        'status' => TravelRequestStatus::CANCELLED->value,
-    ]);
+    $response = $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", []);
 
     $response->assertStatus(404);
-});
-
-test('user cannot cancel with invalid status', function () {
-    Sanctum::actingAs($this->user);
-
-    $travelRequest = TravelRequest::factory()->create([
-        'user_id' => $this->user->id,
-        'status' => TravelRequestStatus::PENDING->value,
-    ]);
-
-    $response = $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", [
-        'status' => 'invalid_status',
-    ]);
-
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors(['status']);
 });
 
 test('user cannot cancel non-existent travel request', function () {
     Sanctum::actingAs($this->user);
 
-    $response = $this->patchJson('/api/user/travel-request/999/cancel', [
-        'status' => TravelRequestStatus::CANCELLED->value,
-    ]);
+    $response = $this->patchJson('/api/user/travel-request/999/cancel', []);
 
     $response->assertStatus(404);
 });
@@ -365,9 +341,7 @@ test('user cannot cancel travel request without authentication', function () {
         'status' => TravelRequestStatus::PENDING->value,
     ]);
 
-    $response = $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", [
-        'status' => TravelRequestStatus::CANCELLED->value,
-    ]);
+    $response = $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", []);
 
     $response->assertStatus(401);
 });
@@ -388,8 +362,6 @@ test('unauthenticated user gets 401 for all protected routes', function () {
 
     $this->getJson('/api/user/travel-request/all')->assertStatus(401);
     $this->getJson("/api/user/travel-request/{$travelRequest->id}/details")->assertStatus(401);
-    $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", [
-        'status' => TravelRequestStatus::CANCELLED->value,
-    ])->assertStatus(401);
+    $this->patchJson("/api/user/travel-request/{$travelRequest->id}/cancel", [])->assertStatus(401);
     $this->postJson('/api/user/travel-request/create', [])->assertStatus(401);
 });
