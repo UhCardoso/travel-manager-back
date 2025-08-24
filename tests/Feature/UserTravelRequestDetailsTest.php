@@ -28,7 +28,7 @@ test('user can view their own travel request details', function () {
 
     $response = $this->withHeaders([
         'Authorization' => 'Bearer '.$token,
-    ])->getJson("/api/user/travel-request/{$travelRequest->id}");
+    ])->getJson("/api/user/travel-request/{$travelRequest->id}/details");
 
     $response->assertStatus(200)
         ->assertJson([
@@ -67,10 +67,9 @@ test('user cannot view another user travel request details', function () {
 
     $response = $this->withHeaders([
         'Authorization' => 'Bearer '.$token1,
-    ])->getJson("/api/user/travel-request/{$travelRequest->id}");
+    ])->getJson("/api/user/travel-request/{$travelRequest->id}/details");
 
     $response->assertStatus(404);
-    // O Laravel pode retornar mensagens diferentes dependendo do contexto
     $responseData = $response->json();
     expect($responseData)->toHaveKey('message');
 });
@@ -87,7 +86,7 @@ test('unauthenticated user cannot view travel request details', function () {
         'return_date' => '2025-11-07',
     ]);
 
-    $response = $this->getJson("/api/user/travel-request/{$travelRequest->id}");
+    $response = $this->getJson("/api/user/travel-request/{$travelRequest->id}/details");
 
     $response->assertStatus(401);
 });
@@ -100,10 +99,9 @@ test('returns 404 for non-existent travel request', function () {
 
     $response = $this->withHeaders([
         'Authorization' => 'Bearer '.$token,
-    ])->getJson('/api/user/travel-request/999');
+    ])->getJson('/api/user/travel-request/999/details');
 
     $response->assertStatus(404);
-    // O Laravel pode retornar mensagens diferentes dependendo do contexto
     $responseData = $response->json();
     expect($responseData)->toHaveKey('message');
 });
@@ -116,9 +114,8 @@ test('returns 404 for travel request with invalid id format', function () {
 
     $response = $this->withHeaders([
         'Authorization' => 'Bearer '.$token,
-    ])->getJson('/api/user/travel-request/invalid-id');
+    ])->getJson('/api/user/travel-request/invalid-id/details');
 
-    // Pode retornar 404 ou 500 dependendo de como o Laravel trata o erro
     expect($response->status())->toBeIn([404, 500]);
 });
 
@@ -142,7 +139,7 @@ test('travel request details include all required fields', function () {
 
     $response = $this->withHeaders([
         'Authorization' => 'Bearer '.$token,
-    ])->getJson("/api/user/travel-request/{$travelRequest->id}");
+    ])->getJson("/api/user/travel-request/{$travelRequest->id}/details");
 
     $response->assertStatus(200)
         ->assertJsonStructure([
@@ -191,10 +188,9 @@ test('multiple users can view their own travel requests independently', function
         'return_date' => '2025-02-07',
     ]);
 
-    // User 1 viewing their own travel request
     $response1 = $this->withHeaders([
         'Authorization' => 'Bearer '.$token1,
-    ])->getJson("/api/user/travel-request/{$travelRequest1->id}");
+    ])->getJson("/api/user/travel-request/{$travelRequest1->id}/details");
 
     $response1->assertStatus(200)
         ->assertJson([
@@ -204,13 +200,11 @@ test('multiple users can view their own travel requests independently', function
             ],
         ]);
 
-    // Limpar o cache de autenticação
     $this->app->make('auth')->forgetGuards();
 
-    // User 2 viewing their own travel request
     $response2 = $this->withHeaders([
         'Authorization' => 'Bearer '.$token2,
-    ])->getJson("/api/user/travel-request/{$travelRequest2->id}");
+    ])->getJson("/api/user/travel-request/{$travelRequest2->id}/details");
 
     $response2->assertStatus(200)
         ->assertJson([
@@ -240,7 +234,7 @@ test('admin cannot access user travel request details through user route', funct
 
     $response = $this->withHeaders([
         'Authorization' => 'Bearer '.$token,
-    ])->getJson("/api/user/travel-request/{$travelRequest->id}");
+    ])->getJson("/api/user/travel-request/{$travelRequest->id}/details");
 
     $response->assertStatus(403);
 });
@@ -266,10 +260,9 @@ test('travel request details show correct status values', function () {
         'status' => TravelRequestStatus::CANCELLED,
     ]);
 
-    // Test pending status
     $response1 = $this->withHeaders([
         'Authorization' => 'Bearer '.$token,
-    ])->getJson("/api/user/travel-request/{$pendingRequest->id}");
+    ])->getJson("/api/user/travel-request/{$pendingRequest->id}/details");
 
     $response1->assertStatus(200)
         ->assertJson([
@@ -278,10 +271,9 @@ test('travel request details show correct status values', function () {
             ],
         ]);
 
-    // Test approved status
     $response2 = $this->withHeaders([
         'Authorization' => 'Bearer '.$token,
-    ])->getJson("/api/user/travel-request/{$approvedRequest->id}");
+    ])->getJson("/api/user/travel-request/{$approvedRequest->id}/details");
 
     $response2->assertStatus(200)
         ->assertJson([
@@ -290,10 +282,9 @@ test('travel request details show correct status values', function () {
             ],
         ]);
 
-    // Test cancelled status
     $response3 = $this->withHeaders([
         'Authorization' => 'Bearer '.$token,
-    ])->getJson("/api/user/travel-request/{$cancelledRequest->id}");
+    ])->getJson("/api/user/travel-request/{$cancelledRequest->id}/details");
 
     $response3->assertStatus(200)
         ->assertJson([
