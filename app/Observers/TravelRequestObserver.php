@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\TravelRequestStatus;
+use App\Events\TravelRequestStatusChanged;
 use App\Mail\TravelRequestApproved;
 use App\Mail\TravelRequestCancelled;
 use App\Models\TravelRequest;
@@ -40,7 +41,11 @@ class TravelRequestObserver
     private function handleStatusCancelled(TravelRequest $travelRequest, $oldStatus): void
     {
         try {
+            // Send email notification
             Mail::to($travelRequest->user->email)->send(new TravelRequestCancelled($travelRequest));
+
+            // Broadcast event via Socket.IO
+            broadcast(new TravelRequestStatusChanged($travelRequest, 'cancelled'));
 
         } catch (\Exception $e) {
             \Log::error('Erro ao enviar email de cancelamento', [
@@ -58,7 +63,11 @@ class TravelRequestObserver
     private function handleStatusApproved(TravelRequest $travelRequest, $oldStatus): void
     {
         try {
+            // Send email notification
             Mail::to($travelRequest->user->email)->send(new TravelRequestApproved($travelRequest));
+
+            // Broadcast event via Socket.IO
+            broadcast(new TravelRequestStatusChanged($travelRequest, 'approve'));
 
         } catch (\Exception $e) {
             \Log::error('Erro ao enviar email de aprovação', [
