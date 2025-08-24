@@ -1,80 +1,144 @@
 <?php
 
 use App\Enums\TravelRequestStatus;
+use App\Mail\TravelRequestApproved;
+use App\Mail\TravelRequestCancelled;
 use App\Models\TravelRequest;
 use App\Models\User;
 use App\Observers\TravelRequestObserver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 uses(RefreshDatabase::class, WithFaker::class);
 
 beforeEach(function () {
-    $this->observer = new TravelRequestObserver;
-    $this->user = User::factory()->create();
+    Mail::fake();
 });
 
-test('observer logs when travel request status changes to cancelled', function () {
+test('observer sends email when admin approves travel request', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create(['role' => 'user']);
+
     $travelRequest = TravelRequest::factory()->create([
-        'user_id' => $this->user->id,
+        'user_id' => $user->id,
         'status' => TravelRequestStatus::PENDING,
     ]);
 
-    // Change status to cancelled
-    $travelRequest->update(['status' => TravelRequestStatus::CANCELLED]);
+    Auth::shouldReceive('user')->andReturn($admin);
 
-    // Verify the status was actually changed
-    expect($travelRequest->fresh()->status->value)->toBe(TravelRequestStatus::CANCELLED->value);
+    $observer = new TravelRequestObserver;
+
+    $travelRequest->setRawAttributes(array_merge($travelRequest->getAttributes(), [
+        'status' => TravelRequestStatus::APPROVED,
+    ]));
+
+    $travelRequest = Mockery::mock($travelRequest)->makePartial();
+    $travelRequest->shouldReceive('wasChanged')->with('status')->andReturn(true);
+    $travelRequest->shouldReceive('getOriginal')->with('status')->andReturn(TravelRequestStatus::PENDING->value);
+
+    $observer->updated($travelRequest);
+
+    Mail::assertSent(TravelRequestApproved::class, function ($mail) use ($travelRequest) {
+        return $mail->travelRequest->id === $travelRequest->id;
+    });
 });
 
-test('observer logs when travel request status changes to approved', function () {
+test('observer sends email when admin cancels travel request', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create(['role' => 'user']);
+
     $travelRequest = TravelRequest::factory()->create([
-        'user_id' => $this->user->id,
+        'user_id' => $user->id,
         'status' => TravelRequestStatus::PENDING,
     ]);
 
-    // Change status to approved
-    $travelRequest->update(['status' => TravelRequestStatus::APPROVED]);
+    Auth::shouldReceive('user')->andReturn($admin);
 
-    // Verify the status was actually changed
-    expect($travelRequest->fresh()->status->value)->toBe(TravelRequestStatus::APPROVED->value);
+    $observer = new TravelRequestObserver;
+
+    $travelRequest->setRawAttributes(array_merge($travelRequest->getAttributes(), [
+        'status' => TravelRequestStatus::CANCELLED,
+    ]));
+
+    $travelRequest = Mockery::mock($travelRequest)->makePartial();
+    $travelRequest->shouldReceive('wasChanged')->with('status')->andReturn(true);
+    $travelRequest->shouldReceive('getOriginal')->with('status')->andReturn(TravelRequestStatus::PENDING->value);
+
+    $observer->updated($travelRequest);
+
+    Mail::assertSent(TravelRequestCancelled::class, function ($mail) use ($travelRequest) {
+        return $mail->travelRequest->id === $travelRequest->id;
+    });
 });
 
-test('observer logs when travel request is created', function () {
+test('observer does not send email when user cancels own travel request', function () {
+    $user = User::factory()->create(['role' => 'user']);
+
     $travelRequest = TravelRequest::factory()->create([
-        'user_id' => $this->user->id,
+        'user_id' => $user->id,
         'status' => TravelRequestStatus::PENDING,
     ]);
 
-    // Verify the travel request was created
-    expect($travelRequest->id)->toBeGreaterThan(0)
-        ->and($travelRequest->user_id)->toBe($this->user->id)
-        ->and($travelRequest->status->value)->toBe(TravelRequestStatus::PENDING->value);
+    Auth::shouldReceive('user')->andReturn($user);
+
+    $observer = new TravelRequestObserver;
+
+    $travelRequest->setRawAttributes(array_merge($travelRequest->getAttributes(), [
+        'status' => TravelRequestStatus::CANCELLED,
+    ]));
+
+    $travelRequest = Mockery::mock($travelRequest)->makePartial();
+    $travelRequest->shouldReceive('wasChanged')->with('status')->andReturn(true);
+    $travelRequest->shouldReceive('getOriginal')->with('status')->andReturn(TravelRequestStatus::PENDING->value);
+
+    $observer->updated($travelRequest);
+
+    Mail::assertNotSent(TravelRequestCancelled::class);
+    Mail::assertNotSent(TravelRequestApproved::class);
 });
 
-test('observer logs when travel request is deleted', function () {
+test('observer does not send email when status is not changed', function () {
+    $user = User::factory()->create(['role' => 'user']);
     $travelRequest = TravelRequest::factory()->create([
-        'user_id' => $this->user->id,
-    ]);
-
-    $travelRequestId = $travelRequest->id;
-
-    $travelRequest->delete();
-
-    // Verify the travel request was deleted
-    expect(TravelRequest::find($travelRequestId))->toBeNull();
-});
-
-test('observer does not log when status is not changed', function () {
-    $travelRequest = TravelRequest::factory()->create([
-        'user_id' => $this->user->id,
+        'user_id' => $user->id,
         'status' => TravelRequestStatus::PENDING,
     ]);
 
-    // Update other fields, not status
-    $travelRequest->update(['name' => 'Updated Name']);
+    $observer = new TravelRequestObserver;
 
-    // Verify the name was updated but status remained the same
-    expect($travelRequest->fresh()->name)->toBe('Updated Name')
-        ->and($travelRequest->fresh()->status->value)->toBe(TravelRequestStatus::PENDING->value);
+    $travelRequest = Mockery::mock($travelRequest)->makePartial();
+    $travelRequest->shouldReceive('wasChanged')->with('status')->andReturn(false);
+
+    $observer->updated($travelRequest);
+
+    Mail::assertNotSent(TravelRequestApproved::class);
+    Mail::assertNotSent(TravelRequestCancelled::class);
+});
+
+test('observer handles email sending errors gracefully', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create(['role' => 'user']);
+
+    $travelRequest = TravelRequest::factory()->create([
+        'user_id' => $user->id,
+        'status' => TravelRequestStatus::PENDING,
+    ]);
+
+    Auth::shouldReceive('user')->andReturn($admin);
+
+    Mail::shouldReceive('to->send')
+        ->andThrow(new \Exception('SMTP connection failed'));
+
+    $observer = new TravelRequestObserver;
+
+    $travelRequest = Mockery::mock($travelRequest)->makePartial();
+    $travelRequest->shouldReceive('wasChanged')->with('status')->andReturn(true);
+    $travelRequest->shouldReceive('getOriginal')->with('status')->andReturn(TravelRequestStatus::PENDING->value);
+
+    $travelRequest->status = TravelRequestStatus::APPROVED;
+    $observer->updated($travelRequest);
+
+    expect($travelRequest->status)->toBe(TravelRequestStatus::APPROVED);
 });
