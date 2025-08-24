@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Resources\TravelRequestCollection;
 use App\Http\Resources\TravelRequestResource;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Contracts\UserTravelRequestRepositoryInterface;
@@ -36,6 +37,16 @@ class UserTravelRequestService
     }
 
     /**
+     * Get all travel requests with pagination
+     */
+    public function getAll(int $userId, array $params): TravelRequestCollection
+    {
+        $paginatedResults = $this->userTravelRequestRepository->getAll($userId, $params);
+
+        return new TravelRequestCollection($paginatedResults);
+    }
+
+    /**
      * Get the details of a travel request
      */
     public function getDetails(int $userId, int $travelRequestId): TravelRequestResource
@@ -47,5 +58,20 @@ class UserTravelRequestService
         }
 
         return new TravelRequestResource($travelRequest);
+    }
+
+    /**
+     * Cancel a travel request
+     * User can only cancel if not approved
+     */
+    public function cancel(int $userId, int $travelRequestId): TravelRequestResource
+    {
+        try {
+            $travelRequest = $this->userTravelRequestRepository->cancel($userId, $travelRequestId);
+
+            return new TravelRequestResource($travelRequest);
+        } catch (\InvalidArgumentException $e) {
+            throw new \InvalidArgumentException($e->getMessage());
+        }
     }
 }
