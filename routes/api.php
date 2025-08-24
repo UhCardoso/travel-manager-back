@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminTravelRequestController;
 use App\Http\Controllers\AuthAdminController;
 use App\Http\Controllers\AuthUserController;
 use App\Http\Controllers\UserTravelRequestController;
@@ -14,8 +15,10 @@ Route::prefix('user')->group(function () {
 
         // Travel requests routes
         Route::middleware(['auth:sanctum'])->prefix('travel-request')->group(function () {
-            Route::post('/', [UserTravelRequestController::class, 'store']);
-            Route::get('/{travelRequestId}', [UserTravelRequestController::class, 'show']);
+            Route::post('/create', [UserTravelRequestController::class, 'store']);
+            Route::get('/all', [UserTravelRequestController::class, 'index']);
+            Route::get('/{travelRequestId}/details', [UserTravelRequestController::class, 'show']);
+            Route::patch('/{travelRequestId}/cancel', [UserTravelRequestController::class, 'update']);
         });
     });
 
@@ -27,5 +30,11 @@ Route::prefix('admin')->group(function () {
 
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('/logout', [AuthAdminController::class, 'logout']);
+
+        Route::middleware(['auth:sanctum'])->prefix('travel-request')->group(function () {
+            Route::get('/all', [AdminTravelRequestController::class, 'index']);
+            Route::get('/{travelRequestId}/details', [AdminTravelRequestController::class, 'show']);
+            Route::patch('/{travelRequestId}/update', [AdminTravelRequestController::class, 'update']);
+        });
     });
 });
