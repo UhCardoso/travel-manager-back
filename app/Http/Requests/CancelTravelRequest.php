@@ -9,13 +9,13 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="CancelTravelRequest",
  *     description="Parâmetros para cancelar uma solicitação de viagem",
+ *     required={"status"},
  *
  *     @OA\Property(
  *         property="status",
  *         type="string",
  *         enum={"cancelled"},
- *         description="Status para cancelar a solicitação de viagem",
- *         required=true
+ *         description="Status para cancelar a solicitação de viagem"
  *     )
  * )
  *

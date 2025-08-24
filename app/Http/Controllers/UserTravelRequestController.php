@@ -107,35 +107,44 @@ class UserTravelRequestController extends Controller
      *         in="query",
      *         description="Nome da viagem para filtrar solicitações (opcional)",
      *         required=false,
-     *         schema=@OA\Schema(type="string", maxLength=255, nullable=true)
+     *
+     *         @OA\Schema(type="string", maxLength=255, nullable=true)
      *     ),
+     *
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
      *         description="Status da solicitação de viagem (opcional)",
      *         required=false,
-     *         schema=@OA\Schema(type="string", enum={"pending", "approved", "cancelled"}, nullable=true)
+     *
+     *         @OA\Schema(type="string", enum={"pending", "approved", "cancelled"}, nullable=true)
      *     ),
+     *
      *     @OA\Parameter(
      *         name="departure_date",
      *         in="query",
      *         description="Data de partida para filtrar solicitações (opcional)",
      *         required=false,
-     *         schema=@OA\Schema(type="string", format="date", nullable=true)
+     *
+     *         @OA\Schema(type="string", format="date", nullable=true)
      *     ),
+     *
      *     @OA\Parameter(
      *         name="return_date",
      *         in="query",
      *         description="Data de retorno para filtrar solicitações (opcional)",
      *         required=false,
-     *         schema=@OA\Schema(type="string", format="date", nullable=true)
+     *
+     *         @OA\Schema(type="string", format="date", nullable=true)
      *     ),
+     *
      *     @OA\Parameter(
      *         name="per_page",
      *         in="query",
      *         description="Número de itens por página (opcional, 1-100, padrão: 15)",
      *         required=false,
-     *         schema=@OA\Schema(type="integer", minimum=1, maximum=100, default=15, nullable=true)
+     *
+     *         @OA\Schema(type="integer", minimum=1, maximum=100, default=15, nullable=true)
      *     ),
      *
      *     @OA\Response(
@@ -145,28 +154,7 @@ class UserTravelRequestController extends Controller
      *         @OA\JsonContent(
      *
      *             @OA\Property(property="message", type="string", example="Solicitações de viagem encontradas com sucesso"),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 @OA\Property(property="current_page", type="integer", example=1),
-     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/TravelRequest")),
-     *                 @OA\Property(property="first_page_url", type="string", example="http://localhost/api/user/travel-request?page=1"),
-     *                 @OA\Property(property="from", type="integer", example=1),
-     *                 @OA\Property(property="last_page", type="integer", example=1),
-     *                 @OA\Property(property="last_page_url", type="string", example="http://localhost/api/user/travel-request?page=1"),
-     *                 @OA\Property(property="links", type="array", @OA\Items(
-     *                     type="object",
-     *                     @OA\Property(property="url", type="string", nullable=true),
-     *                     @OA\Property(property="label", type="string"),
-     *                     @OA\Property(property="active", type="boolean")
-     *                 )),
-     *                 @OA\Property(property="next_page_url", type="string", nullable=true),
-     *                 @OA\Property(property="path", type="string", example="http://localhost/api/user/travel-request"),
-     *                 @OA\Property(property="per_page", type="integer", example=15),
-     *                 @OA\Property(property="prev_page_url", type="string", nullable=true),
-     *                 @OA\Property(property="to", type="integer", example=1),
-     *                 @OA\Property(property="total", type="integer", example=1)
-     *             )
+     *             @OA\Property(property="data", ref="#/components/schemas/TravelRequestCollection")
      *         )
      *     ),
      *
@@ -222,7 +210,7 @@ class UserTravelRequestController extends Controller
      *         @OA\JsonContent(
      *
      *             @OA\Property(property="message", type="string", example="Solicitação de viagem encontrada com sucesso"),
-     *             @OA\Property(property="data", type="object")
+     *             @OA\Property(property="data", ref="#/components/schemas/TravelRequestResource")
      *         )
      *     ),
      *
@@ -261,7 +249,8 @@ class UserTravelRequestController extends Controller
      *         in="path",
      *         description="ID da solicitação de viagem",
      *         required=true,
-     *         schema=@OA\Schema(type="integer")
+     *
+     *         @OA\Schema(type="integer")
      *     ),
      *
      *     @OA\RequestBody(
@@ -287,7 +276,7 @@ class UserTravelRequestController extends Controller
      *         @OA\JsonContent(
      *
      *             @OA\Property(property="message", type="string", example="Solicitação de viagem cancelada com sucesso"),
-     *             @OA\Property(property="data", type="object")
+     *             @OA\Property(property="data", ref="#/components/schemas/TravelRequestResource")
      *         )
      *     ),
      *

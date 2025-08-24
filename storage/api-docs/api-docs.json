@@ -20,6 +20,282 @@
         }
     ],
     "paths": {
+        "/api/admin/travel-request": {
+            "get": {
+                "tags": [
+                    "Admin Travel Requests"
+                ],
+                "summary": "Listar todas as solicitações de viagem",
+                "description": "Lista todas as solicitações de viagem do sistema. Todos os parâmetros de filtro são opcionais.",
+                "operationId": "eeb9e64073aae0755e025fd04c2116ee",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Nome da viagem para filtrar solicitações (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 255,
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status da solicitação de viagem (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "approved",
+                                "cancelled"
+                            ],
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "departure_date",
+                        "in": "query",
+                        "description": "Data de partida para filtrar solicitações (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "return_date",
+                        "in": "query",
+                        "description": "Data de retorno para filtrar solicitações (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Número de itens por página (opcional, 1-100, padrão: 15)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15,
+                            "maximum": 100,
+                            "minimum": 1,
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Solicitações de viagem encontradas com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Solicitações de viagem encontradas com sucesso"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/TravelRequestCollection"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erros de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado"
+                    },
+                    "403": {
+                        "description": "Acesso negado - requer role de admin"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/travel-request/{travelRequestId}": {
+            "get": {
+                "tags": [
+                    "Admin Travel Requests"
+                ],
+                "summary": "Obter detalhes de uma solicitação de viagem",
+                "description": "Retorna os detalhes de uma solicitação de viagem específica com informações do usuário",
+                "operationId": "22b1f4c4a272d428abddf95e57771d83",
+                "parameters": [
+                    {
+                        "name": "travelRequestId",
+                        "in": "path",
+                        "description": "ID da solicitação de viagem",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes da solicitação de viagem",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Solicitação de viagem encontrada com sucesso"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/TravelRequestResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Solicitação de viagem não encontrada"
+                    },
+                    "401": {
+                        "description": "Não autorizado"
+                    },
+                    "403": {
+                        "description": "Acesso negado - requer role de admin"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Admin Travel Requests"
+                ],
+                "summary": "Atualizar status de uma solicitação de viagem",
+                "description": "Atualiza o status de uma solicitação de viagem específica",
+                "operationId": "88017e4e018734f9b72dbb145b66d074",
+                "parameters": [
+                    {
+                        "name": "travelRequestId",
+                        "in": "path",
+                        "description": "ID da solicitação de viagem",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "description": "Novo status da solicitação de viagem",
+                                        "type": "string",
+                                        "enum": [
+                                            "pending",
+                                            "approved",
+                                            "cancelled"
+                                        ],
+                                        "example": "approved"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status da solicitação de viagem atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Status da solicitação de viagem atualizado com sucesso"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/TravelRequestResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Solicitação de viagem não encontrada"
+                    },
+                    "422": {
+                        "description": "Erros de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado"
+                    },
+                    "403": {
+                        "description": "Acesso negado - requer role de admin"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/admin/login": {
             "post": {
                 "tags": [
@@ -331,14 +607,132 @@
                 ]
             }
         },
-        "/api/travel-request": {
+        "/api/user/travel-request": {
+            "get": {
+                "tags": [
+                    "Travel Requests"
+                ],
+                "summary": "Listar solicitações de viagem",
+                "description": "Lista todas as solicitações de viagem do usuário autenticado. Todos os parâmetros de filtro são opcionais.",
+                "operationId": "fc70d741b64961d317d8932ccfb60cea",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Nome da viagem para filtrar solicitações (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 255,
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status da solicitação de viagem (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "approved",
+                                "cancelled"
+                            ],
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "departure_date",
+                        "in": "query",
+                        "description": "Data de partida para filtrar solicitações (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "return_date",
+                        "in": "query",
+                        "description": "Data de retorno para filtrar solicitações (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Número de itens por página (opcional, 1-100, padrão: 15)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15,
+                            "maximum": 100,
+                            "minimum": 1,
+                            "nullable": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Solicitações de viagem encontradas com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Solicitações de viagem encontradas com sucesso"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/TravelRequestCollection"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erros de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "Travel Requests"
                 ],
                 "summary": "Criar nova solicitação de viagem",
                 "description": "Cria uma nova solicitação de viagem para o usuário autenticado",
-                "operationId": "756f9b6b790c4b49459d4ebc04b5ac3f",
+                "operationId": "0803abdd2bac1e601632310b44b281df",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -444,14 +838,14 @@
                 ]
             }
         },
-        "/api/travel-request/{travelRequestId}": {
+        "/api/user/travel-request/{travelRequestId}": {
             "get": {
                 "tags": [
                     "Travel Requests"
                 ],
                 "summary": "Obter detalhes de uma solicitação de viagem",
                 "description": "Retorna os detalhes de uma solicitação de viagem específica",
-                "operationId": "8b7651f52cff8e07b1a9e7aa7fefcc97",
+                "operationId": "0f44944372d07c08d3c687881acc84bc",
                 "parameters": [
                     {
                         "name": "travelRequestId",
@@ -475,7 +869,7 @@
                                             "example": "Solicitação de viagem encontrada com sucesso"
                                         },
                                         "data": {
-                                            "type": "object"
+                                            "$ref": "#/components/schemas/TravelRequestResource"
                                         }
                                     },
                                     "type": "object"
@@ -485,6 +879,114 @@
                     },
                     "404": {
                         "description": "Solicitação de viagem não encontrada"
+                    },
+                    "401": {
+                        "description": "Não autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Travel Requests"
+                ],
+                "summary": "Cancelar uma solicitação de viagem",
+                "description": "Cancela uma solicitação de viagem específica do usuário (não pode cancelar se aprovada)",
+                "operationId": "7200b9b70f08e8552420a737773e76f0",
+                "parameters": [
+                    {
+                        "name": "travelRequestId",
+                        "in": "path",
+                        "description": "ID da solicitação de viagem",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "description": "Status para cancelar a solicitação de viagem",
+                                        "type": "string",
+                                        "enum": [
+                                            "cancelled"
+                                        ],
+                                        "example": "cancelled"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Solicitação de viagem cancelada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Solicitação de viagem cancelada com sucesso"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/TravelRequestResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação de negócio",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Não é possível cancelar uma solicitação aprovada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Solicitação de viagem não encontrada"
+                    },
+                    "422": {
+                        "description": "Erros de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Não autorizado"
@@ -628,6 +1130,122 @@
                     "password.min": {
                         "type": "string",
                         "example": "A senha deve ter pelo menos 6 caracteres."
+                    }
+                },
+                "type": "object"
+            },
+            "CancelTravelRequest": {
+                "description": "Parâmetros para cancelar uma solicitação de viagem",
+                "required": [
+                    "status"
+                ],
+                "properties": {
+                    "status": {
+                        "description": "Status para cancelar a solicitação de viagem",
+                        "type": "string",
+                        "enum": [
+                            "cancelled"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "CancelTravelRequestErrors": {
+                "title": "Cancel Travel Request Error Messages",
+                "description": "Mensagens de erro para cancelamento de solicitação de viagem",
+                "properties": {
+                    "status.required": {
+                        "type": "string",
+                        "example": "O status é obrigatório."
+                    },
+                    "status.string": {
+                        "type": "string",
+                        "example": "O status deve ser uma string."
+                    },
+                    "status.in": {
+                        "type": "string",
+                        "example": "O status deve ser cancelled."
+                    },
+                    "status.cannot_cancel_approved": {
+                        "type": "string",
+                        "example": "Não é possível cancelar uma solicitação aprovada."
+                    }
+                },
+                "type": "object"
+            },
+            "IndexTravelRequest": {
+                "description": "Parâmetros opcionais para filtrar solicitações de viagem",
+                "properties": {
+                    "name": {
+                        "description": "Nome da viagem para filtrar solicitações (opcional)",
+                        "type": "string",
+                        "maxLength": 255,
+                        "nullable": true
+                    },
+                    "status": {
+                        "description": "Status da solicitação de viagem (opcional)",
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "approved",
+                            "cancelled"
+                        ],
+                        "nullable": true
+                    },
+                    "departure_date": {
+                        "description": "Data de partida para filtrar solicitações (opcional)",
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "return_date": {
+                        "description": "Data de retorno para filtrar solicitações (opcional)",
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "per_page": {
+                        "description": "Número de itens por página (opcional, padrão: 15)",
+                        "type": "integer",
+                        "default": 15,
+                        "maximum": 100,
+                        "minimum": 1,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IndexTravelRequestErrors": {
+                "title": "Index Travel Request Error Messages",
+                "description": "Mensagens de erro para filtros de solicitação de viagem",
+                "properties": {
+                    "status.in": {
+                        "type": "string",
+                        "example": "O status deve ser um dos valores válidos: pending, approved, cancelled."
+                    },
+                    "departure_date.date": {
+                        "type": "string",
+                        "example": "A data de partida deve ser uma data válida."
+                    },
+                    "return_date.date": {
+                        "type": "string",
+                        "example": "A data de retorno deve ser uma data válida."
+                    },
+                    "return_date.after": {
+                        "type": "string",
+                        "example": "A data de retorno deve ser posterior à data de partida."
+                    },
+                    "per_page.integer": {
+                        "type": "string",
+                        "example": "O número de itens por página deve ser um número inteiro."
+                    },
+                    "per_page.min": {
+                        "type": "string",
+                        "example": "O número de itens por página deve ser pelo menos 1."
+                    },
+                    "per_page.max": {
+                        "type": "string",
+                        "example": "O número de itens por página não pode ser maior que 100."
                     }
                 },
                 "type": "object"
@@ -844,6 +1462,43 @@
                 },
                 "type": "object"
             },
+            "UpdateTravelRequestStatus": {
+                "description": "Parâmetros para atualizar o status de uma solicitação de viagem",
+                "required": [
+                    "status"
+                ],
+                "properties": {
+                    "status": {
+                        "description": "Novo status da solicitação de viagem",
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "approved",
+                            "cancelled"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateTravelRequestStatusErrors": {
+                "title": "Update Travel Request Status Error Messages",
+                "description": "Mensagens de erro para atualização de status de solicitação de viagem",
+                "properties": {
+                    "status.required": {
+                        "type": "string",
+                        "example": "O status é obrigatório."
+                    },
+                    "status.string": {
+                        "type": "string",
+                        "example": "O status deve ser uma string."
+                    },
+                    "status.in": {
+                        "type": "string",
+                        "example": "O status deve ser um dos valores válidos: pending, approved, cancelled."
+                    }
+                },
+                "type": "object"
+            },
             "UserLoginRequest": {
                 "required": [
                     "email",
@@ -933,6 +1588,73 @@
                 },
                 "type": "object"
             },
+            "TravelRequestCollection": {
+                "title": "Travel Request Collection",
+                "description": "Coleção paginada de solicitações de viagem",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TravelRequestResource"
+                        }
+                    },
+                    "links": {
+                        "description": "Links de paginação",
+                        "properties": {
+                            "first": {
+                                "type": "string",
+                                "example": "http://localhost/api/user/travel-request?page=1"
+                            },
+                            "last": {
+                                "type": "string",
+                                "example": "http://localhost/api/user/travel-request?page=5"
+                            },
+                            "prev": {
+                                "type": "string",
+                                "example": null,
+                                "nullable": true
+                            },
+                            "next": {
+                                "type": "string",
+                                "example": "http://localhost/api/user/travel-request?page=2",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "meta": {
+                        "description": "Metadados da paginação",
+                        "properties": {
+                            "current_page": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "from": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "last_page": {
+                                "type": "integer",
+                                "example": 5
+                            },
+                            "per_page": {
+                                "type": "integer",
+                                "example": 15
+                            },
+                            "to": {
+                                "type": "integer",
+                                "example": 15
+                            },
+                            "total": {
+                                "type": "integer",
+                                "example": 75
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
             "TravelRequestResource": {
                 "title": "Travel Request Resource",
                 "description": "Recurso de solicitação de viagem",
@@ -944,6 +1666,11 @@
                     "user_id": {
                         "type": "integer",
                         "example": 1
+                    },
+                    "user": {
+                        "description": "Informações do usuário (quando disponível)",
+                        "type": "object",
+                        "nullable": true
                     },
                     "name": {
                         "type": "string",
@@ -1193,6 +1920,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Admin Travel Requests",
+            "description": "API Endpoints para administradores gerenciarem solicitações de viagem"
+        },
         {
             "name": "Admin Authentication",
             "description": "Endpoints para autenticação de administradores"

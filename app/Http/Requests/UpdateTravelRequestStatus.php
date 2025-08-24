@@ -10,13 +10,13 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="UpdateTravelRequestStatus",
  *     description="Parâmetros para atualizar o status de uma solicitação de viagem",
+ *     required={"status"},
  *
  *     @OA\Property(
  *         property="status",
  *         type="string",
  *         enum={"pending", "approved", "cancelled"},
- *         description="Novo status da solicitação de viagem",
- *         required=true
+ *         description="Novo status da solicitação de viagem"
  *     )
  * )
  *
