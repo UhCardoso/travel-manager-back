@@ -66,18 +66,13 @@ test('auth service login with valid user credentials', function () {
         ->and($resultData['token_type'])->toBe('Bearer');
 });
 
-test('auth service login with valid admin credentials', function () {
+test('auth service throws exception for admin login through user routes', function () {
     $admin = User::factory()->admin()->create([
         'password' => bcrypt('password123'),
     ]);
 
-    $result = $this->authUserService->login($admin->email, 'password123');
-
-    expect($result)->toBeInstanceOf(AuthResource::class);
-
-    $resultData = $result->resolve();
-    expect($resultData['user']['id'])->toBe($admin->id)
-        ->and($resultData['token'])->toBeString();
+    expect(fn () => $this->authUserService->login($admin->email, 'password123'))
+        ->toThrow(ValidationException::class, 'Administrador deve fazer login via painel de administração.');
 });
 
 test('auth service throws exception for invalid password', function () {

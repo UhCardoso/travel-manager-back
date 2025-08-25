@@ -202,9 +202,8 @@ test('auth service throws exception for non-admin user', function () {
         'password' => bcrypt('password123'),
     ]);
 
-    $result = $this->authAdminService->login('user@test.com', 'password123');
-
-    expect($result)->toBeInstanceOf(\App\Http\Resources\AuthResource::class);
+    expect(fn () => $this->authAdminService->login('user@test.com', 'password123'))
+        ->toThrow(ValidationException::class, 'Usuário não é administrador.');
 });
 
 test('auth service throws exception for invalid password', function () {
