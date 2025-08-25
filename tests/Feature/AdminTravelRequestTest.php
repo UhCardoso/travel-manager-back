@@ -332,7 +332,7 @@ test('admin can cancel travel request', function () {
     ]);
 });
 
-test('admin can change status from approved to cancelled', function () {
+test('admin cannot change status from approved to cancelled', function () {
     Sanctum::actingAs($this->admin);
 
     $travelRequest = TravelRequest::factory()->create([
@@ -344,12 +344,8 @@ test('admin can change status from approved to cancelled', function () {
         'status' => TravelRequestStatus::CANCELLED->value,
     ]);
 
-    $response->assertStatus(200);
-
-    $this->assertDatabaseHas('travel_requests', [
-        'id' => $travelRequest->id,
-        'status' => TravelRequestStatus::CANCELLED->value,
-    ]);
+    $response->assertStatus(500)
+        ->assertJsonPath('message', 'Solicitação de viagem já aprovada e não pode ser cancelada');
 });
 
 test('admin cannot update with invalid status', function () {

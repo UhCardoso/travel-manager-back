@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Enums\TravelRequestStatus;
 use App\Models\TravelRequest;
 use App\Repositories\Contracts\AdminTravelRequestRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -60,6 +61,11 @@ class AdminTravelRequestRepository implements AdminTravelRequestRepositoryInterf
     public function updateStatus(int $travelRequestId, string $status): TravelRequest
     {
         $travelRequest = $this->model->findOrFail($travelRequestId);
+
+        if ($travelRequest->status->value === TravelRequestStatus::APPROVED->value && $status === TravelRequestStatus::CANCELLED->value) {
+            throw new \InvalidArgumentException('Solicitação de viagem já aprovada e não pode ser cancelada');
+        }
+
         $travelRequest->update(['status' => $status]);
 
         return $travelRequest->fresh();
