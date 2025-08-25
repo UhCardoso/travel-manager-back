@@ -52,6 +52,12 @@ class AuthUserService
             ]);
         }
 
+        if ($user->role == UserRole::ADMIN->value) {
+            throw ValidationException::withMessages([
+                'email' => ["Administrador deve fazer login via painel de administração."],
+            ]);
+        }
+
         $token = $user->createToken('user-access')->plainTextToken;
 
         return new AuthResource([

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Http\Resources\AuthResource;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -27,6 +28,12 @@ class AuthAdminService
         if (! $user || ! Hash::check($password, $user->password)) {
             throw ValidationException::withMessages([
                 'message' => ['Email ou senha incorretos.'],
+            ]);
+        }
+
+        if ($user->role !== UserRole::ADMIN->value) {
+            throw ValidationException::withMessages([
+                'message' => ['Usuário não é administrador.'],
             ]);
         }
 
