@@ -66,9 +66,8 @@ test('regular user cannot login as admin', function () {
         'password' => 'password123',
     ]);
 
-    $response->assertStatus(200)
-        ->assertJsonPath('success', true)
-        ->assertJsonPath('message', 'Login realizado com sucesso');
+    $response->assertStatus(422)
+        ->assertJsonPath('message', 'Usuário não é administrador.');
 });
 
 test('admin cannot login with missing credentials', function () {

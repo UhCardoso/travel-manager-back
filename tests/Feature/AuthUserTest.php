@@ -180,7 +180,7 @@ test('user cannot login with short password', function () {
         ->assertJsonValidationErrors(['password']);
 });
 
-test('admin can also login through user routes', function () {
+test('admin cannot login through user routes', function () {
     $admin = User::factory()->admin()->create([
         'email' => 'admin@example.com',
         'password' => bcrypt('password123'),
@@ -191,9 +191,8 @@ test('admin can also login through user routes', function () {
         'password' => 'password123',
     ]);
 
-    $response->assertStatus(200)
-        ->assertJsonPath('success', true)
-        ->assertJsonPath('message', 'Login realizado com sucesso');
+    $response->assertStatus(422)
+        ->assertJsonPath('message', 'Administrador deve fazer login via painel de administração.');
 });
 
 test('authenticated user can logout', function () {
