@@ -56,6 +56,7 @@ Siga os comandos abaixo para configurar o projeto:
     ```bash
     cp .env.example .env
     ```
+    obs: caso as variaveis nao tenham sido preenchidas corretamente, pode dar  CTRL+C CTRL+V do .env.example para .env para fins de teste
 
 6.  **Inicie os containers com Sail:**
     ```bash
