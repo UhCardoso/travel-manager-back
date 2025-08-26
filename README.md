@@ -131,3 +131,5 @@ Foram criados testes de **Feature** e **Unitários** para validar os fluxos da a
 
 * **Visualização de E-mails de Teste:**
     [http://localhost:8025](http://localhost:8025)
+* **Arquivo para teste de rotas via insomnia:**
+* [Baixar arquivo](https://drive.google.com/file/d/1Hs-oY8pIJvbSubIx1YRZkCN9pBTPdLAf/view?usp=sharing)
