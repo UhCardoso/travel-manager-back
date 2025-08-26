@@ -1,61 +1,129 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Guia do Projeto Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este README foi criado para ajudar você a entender e executar o projeto de Gestão de Viagens. Use os links abaixo para navegar pelas seções.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+[Instalação](#instalação)
+[Sobre o Projeto](#sobre-o-projeto)
+[Arquitetura Utilizada](#arquitetura-utilizada)
+[Testes](#testes)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Instalação
 
-## Learning Laravel
+### Requisitos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Para rodar este projeto, você precisa ter as seguintes ferramentas instaladas:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+* **Docker:** Para gerenciar os containers do projeto.
+    * [Link para download](https://www.docker.com/get-started/)
+* **Composer:** Gerenciador de dependências do PHP.
+    * [Link para download](https://getcomposer.org/download/)
+* **Node.js:** Para gerenciar as dependências do frontend (Vite).
+    * [Link para download](https://nodejs.org/en/download/)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Passos de Instalação
 
-## Laravel Sponsors
+Siga os comandos abaixo para configurar o projeto:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1.  **Clone o repositório:**
+    ```bash
+    git clone [https://github.com/UhCardoso/travel-manager-back.git](https://github.com/UhCardoso/travel-manager-back.git)
+    ```
 
-### Premium Partners
+2.  **Acesse o diretório do projeto:**
+    ```bash
+    cd travel-manager-back
+    ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+3.  **Instale as dependências do Composer (PHP):**
+    ```bash
+    composer install
+    ```
 
-## Contributing
+4.  **Instale as dependências do NPM (Node.js):**
+    ```bash
+    npm install
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5.  **Configure as variáveis de ambiente:**
+    Para este projeto, um arquivo `.env` já foi fornecido com as variáveis preenchidas para facilitar a execução em ambiente de desenvolvimento. Basta copiar o arquivo de exemplo.
+    ```bash
+    cp .env.example .env
+    ```
 
-## Code of Conduct
+6.  **Inicie os containers com Sail:**
+    ```bash
+    ./vendor/bin/sail up -d
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+7.  **Execute as migrations e seeds:**
+    ```bash
+    ./vendor/bin/sail artisan migrate --seed
+    ```
 
-## Security Vulnerabilities
+8.  **Verifique se o projeto está funcionando:**
+    O projeto deve estar rodando em [http://localhost](http://localhost). Se tudo estiver configurado corretamente, você não terá erros.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## Sobre o Projeto
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Este projeto é um portal de gerenciamento de viagens com dois tipos de acesso distintos: um para usuários comuns e outro para administradores.
+
+* **Usuário Comum:** Pode registrar novas viagens, visualizar o histórico de solicitações e solicitar o cancelamento de uma viagem, desde que ela ainda não tenha sido aprovada.
+
+* **Administrador:** Possui um portal exclusivo para gerenciar todos os pedidos de viagem. Ele pode alterar o status de uma solicitação para **aprovado** ou **cancelado**. Uma vez que a viagem é aprovada, seu status não pode mais ser alterado para cancelado.
+
+Qualquer alteração no status de uma viagem envia uma notificação por e-mail para o usuário responsável pela solicitação.
+
+---
+
+## Arquitetura Utilizada
+
+Este projeto foi desenvolvido utilizando a arquitetura **Repository Pattern + Service Layer** para garantir a aderência aos princípios do **SOLID** e da **Clean Architecture**.
+
+O fluxo de dados segue a sequência **Controller → Service → Contract (Interface) → Repository → Model**, o que proporciona:
+
+* **Separação de Responsabilidades (SRP):** Cada camada tem uma responsabilidade bem definida.
+* **Inversão de Dependência (DIP):** O código de alto nível não depende de implementações de baixo nível.
+* **Testabilidade, Manutenibilidade e Escalabilidade:** O design modular facilita a criação de testes, a manutenção do código e futuras expansões.
+
+**Padrões de projeto utilizados:**
+
+* **Repository Pattern:** Abstrai a camada de acesso a dados.
+* **Service Layer:** Centraliza a lógica de negócio.
+* **Dependency Injection:** Permite a inversão de controle.
+* **Interface Segregation:** Utiliza contratos específicos.
+* **Observer Pattern:** Usado para eventos, como o **TravelRequestObserver** que lida com notificações.
+
+---
+
+## Testes
+
+Foram criados testes de **Feature** e **Unitários** para validar os fluxos da aplicação.
+
+* **Rodar todos os testes:**
+    ```bash
+    ./vendor/bin/sail pest
+    ```
+
+* **Rodar um arquivo de teste específico:**
+    ```bash
+    ./vendor/bin/sail pest tests/Feature/UserTravelRequestTest.php
+    ```
+
+* **Rodar uma classe de teste específica:**
+    ```bash
+    ./vendor/bin/sail pest --filter=UserTravelRequestTest
+    ```
+
+### Outras Rotas Úteis
+
+* **Documentação da API (Swagger):**
+    [http://localhost/api/documentation](http://localhost/api/documentation)
+
+* **Visualização de E-mails de Teste:**
+    [http://localhost:8025](http://localhost:8025)
