@@ -4,10 +4,13 @@ Este README foi criado para ajudar você a entender e executar o projeto de Gest
 
 ---
 
-[Instalação](#instalação)
-[Sobre o Projeto](#sobre-o-projeto)
-[Arquitetura Utilizada](#arquitetura-utilizada)
-[Testes](#testes)
+[1 Instalação](#instalação)
+<br/>
+[2 Sobre o Projeto](#sobre-o-projeto)
+<br/>
+[3 Arquitetura Utilizada](#arquitetura-utilizada)
+<br/>
+[4 Testes](#testes)
 
 ---
 
@@ -30,7 +33,7 @@ Siga os comandos abaixo para configurar o projeto:
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/UhCardoso/travel-manager-back.git](https://github.com/UhCardoso/travel-manager-back.git)
+    git clone https://github.com/UhCardoso/travel-manager-back.git
     ```
 
 2.  **Acesse o diretório do projeto:**
